@@ -1,0 +1,88 @@
+<?php
+class Bea_Sender_Client {
+	
+	function __construct() {}
+	
+	public static function registerCampaign( $data_campaign, $data ,$content_html, $content_text = '' ) {
+		$campaign = new Bea_Sender_Campaign();
+		$insert = $campaign->add( $data_campaign, $data ,$content_html, $content_text );
+		return $insert;
+	}
+	
+	/**
+	 * Create the tables if needed
+	 * 
+	 * @param void
+	 * @return void
+	 * @author Nicolas Juen
+	 */
+	public static function activation() {
+		global $wpdb;
+		
+		// Charset
+		if ( ! empty($wpdb->charset) )
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+		if ( ! empty($wpdb->collate) )
+			$charset_collate .= " COLLATE $wpdb->collate";
+		
+		// Add one library admin function for next function
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		
+		// Campaign Table
+		maybe_create_table( $wpdb->bea_s_campaign, "CREATE TABLE ".$wpdb->bea_s_campaign." (
+			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`add_date` datetime NOT NULL,
+			`scheduled_from` datetime NOT NULL,
+			`current_status` varchar(10) NOT NULL,
+			`from_name` varchar(255) NOT NULL,
+			`from` varchar(255) NOT NULL,
+			`subject` text NOT NULL
+		) $charset_collate;" );
+		add_clean_index( $table_name, 'id' );
+		add_clean_index( $table_name, 'current_status' );
+		
+		// Receiver Table
+		maybe_create_table( $wpdb->bea_s_receivers, "CREATE TABLE ".$wpdb->bea_s_receivers." (
+			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`email` text NOT NULL,
+			`current_status` varchar(10) NOT NULL
+			UNIQUE ( email )
+		) $charset_collate;" );
+		add_clean_index( $wpdb->bea_s_receivers, 'email' );
+		add_clean_index( $wpdb->bea_s_receivers, 'current_status' );
+		
+		// Recesiver/campaign link table
+		maybe_create_table( $wpdb->bea_s_re_ca, "CREATE TABLE ".$wpdb->bea_s_re_ca." (
+			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`id_campaign` int NOT NULL,
+			`id_receiver` int NOT NULL,
+			`id_content` int NOT NULL,
+			`current_status` varchar(10) NOT NULL,
+			`response` varchar(10) NOT NULL
+		) $charset_collate;" );
+		add_clean_index( $wpdb->bea_s_re_ca, 'current_status' );
+		add_clean_index( $wpdb->bea_s_re_ca, 'id_campaign' );
+		add_clean_index( $wpdb->bea_s_re_ca, 'id_receiver' );
+		
+		// Content Table
+		maybe_create_table( $wpdb->bea_s_contents, "CREATE TABLE ".$wpdb->bea_s_contents." (
+			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`html` longtext NOT NULL,
+			`text` longtext NOT NULL
+		) $charset_collate;" );
+		add_clean_index( $wpdb->bea_s_content, 'id' );
+	}
+	
+	public static function getStatus( $slug ) {
+		$statuses = array(
+			'progress' => __( 'In progress' , 'bea_sender' ),
+			'registered' => __( 'Registered' , 'bea_sender' ),
+			'done' => __( 'Done' , 'bea_sender' ),
+			'send' => __( 'Sent' , 'bea_sender' ),
+			'pending' => __( 'Pending' , 'bea_sender' ),
+			'valid' => __( 'Valid' , 'bea_sender' ),
+			'bounced' => __( 'Bounced' , 'bea_sender' ),
+		);
+		return isset( $statuses[$slug] ) ? $statuses[$slug] : $slug;
+	}
+}
