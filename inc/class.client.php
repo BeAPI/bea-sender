@@ -29,7 +29,7 @@ class Bea_Sender_Client {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		
 		// Campaign Table
-		maybe_create_table( $wpdb->bea_s_campaign, "CREATE TABLE ".$wpdb->bea_s_campaign." (
+		maybe_create_table( $wpdb->bea_s_campaigns, "CREATE TABLE ".$wpdb->bea_s_campaigns." (
 			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			`add_date` datetime NOT NULL,
 			`scheduled_from` datetime NOT NULL,
@@ -44,12 +44,13 @@ class Bea_Sender_Client {
 		// Receiver Table
 		maybe_create_table( $wpdb->bea_s_receivers, "CREATE TABLE ".$wpdb->bea_s_receivers." (
 			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			`email` text NOT NULL,
-			`current_status` varchar(10) NOT NULL
+			`email` varchar(255) NOT NULL,
+			`current_status` varchar(10) NOT NULL,
 			UNIQUE ( email )
 		) $charset_collate;" );
 		add_clean_index( $wpdb->bea_s_receivers, 'email' );
 		add_clean_index( $wpdb->bea_s_receivers, 'current_status' );
+		
 		
 		// Recesiver/campaign link table
 		maybe_create_table( $wpdb->bea_s_re_ca, "CREATE TABLE ".$wpdb->bea_s_re_ca." (

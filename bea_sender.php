@@ -17,7 +17,7 @@ $wpdb->bea_s_contents 	= $wpdb->prefix . 'bea_s_contents';
 $wpdb->tables[] = 'bea_s_campaigns';
 $wpdb->tables[] = 'bea_s_receivers';
 $wpdb->tables[] = 'bea_s_re_ca';
-$wpdb->tables[] = 'bea_s_content';
+$wpdb->tables[] = 'bea_s_contents';
 
 define( 'BEA_SENDER_URL', plugins_url( '', __FILE__ ) );
 define( 'BEA_SENDER_DIR', dirname( __FILE__ ) );
