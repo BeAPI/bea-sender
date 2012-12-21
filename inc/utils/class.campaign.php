@@ -132,7 +132,7 @@ class Bea_Sender_Campaign {
 			$this->addSendFilters();
 			
 			// Mail trough the email class accepting the raw format
-			$mailed = Bea_Sender_Email::wpMail( $send->email, $this->subject, array( 'html' => $send->html, 'raw' => $send->text ) );
+			$mailed = Bea_Sender_Email::wpMail( $send->email, $this->subject, array( 'html' => self::contentReplace( $send->html, $send->email ), 'raw' => self::contentReplace( $send->text ) ) );
 			
 			// Remove the filters
 			$this->removeSendFilters();
@@ -152,6 +152,10 @@ class Bea_Sender_Campaign {
 		}
 		
 		return array( $failed, $counter );
+	}
+	
+	private static function contentReplace( $content, $email ) {
+		return str_replace( '{email}', $email, $content );
 	}
 	
 	private function getEmailsContents() {
