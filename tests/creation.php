@@ -16,8 +16,8 @@ $data = array(
 	'njuen+receiver6@beapi.fr',
 );
 
-$content_html = '<div>{email} HTML Not multiple Okokokokokok</div>';
-$content_text = '<div>{email} TEXT Not multiple Okokokokokok</div>';
+$content_html = '<div>HTML Not multiple Okokokokokok</div>';
+$content_text = '<div>TEXT Not multiple Okokokokokok</div>';
 
 $campaign = new Bea_Sender_Campaign();
 $insert = $campaign->add( $data_campaign, $data ,$content_html, $content_text );
@@ -33,8 +33,8 @@ $data_campaign = array(
 	'subject' => 'Tests mutltiple',
 );
 
-$content_html = '<div>{email} HTML Multiple</div>';
-$content_text = '<div>{email} TEXT multiple</div>';
+$content_html = '<div>HTML Multiple</div>';
+$content_text = '<div>TEXT multiple</div>';
 $data = array(
 	array( 
 		'email' => 'njuen+receiver1@beapi.fr',
@@ -83,8 +83,8 @@ $data_campaign = array(
 	'scheduled_from' => date( 'Y-m-d H:m:i' ,strtotime( '+15 minutes' ) )
 );
 
-$content_html = '<div>{email} HTML Multiple</div>';
-$content_text = '<div>{email} TEXT multiple</div>';
+$content_html = '<div>HTML Multiple</div>';
+$content_text = '<div>TEXT multiple</div>';
 $data = array(
 	array( 
 		'email' => 'njuen+receiver1@beapi.fr',

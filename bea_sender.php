@@ -23,7 +23,7 @@ define( 'BEA_SENDER_URL', plugins_url( '', __FILE__ ) );
 define( 'BEA_SENDER_DIR', dirname( __FILE__ ) );
 define( 'BEA_SENDER_VER', '1.0' );
 define( 'BEA_SENDER_PPP', '10' );
-define( 'BEA_SENDER_DEFAULT_COUNTER', 6 );
+define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 
 // Utils
 require( BEA_SENDER_DIR.'/inc/utils/'.'class.email.php' );

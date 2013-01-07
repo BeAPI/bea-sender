@@ -6,7 +6,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @return array() $auth_order
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
-	private static $auth_order = array( 'id', 'add_date', 'scheduled_from','current_status' );
+	private static $auth_order = array( 'id', 'add_date', 'scheduled_from','current_status', 'success', 'failed' );
 
 	/**
 	 * Constructor
@@ -15,10 +15,13 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	public function __construct( ) {
-		parent::__construct( array( 'singular' => 'campaign', // singular name of the listed records
-		'plural' => 'campaigns', // plural name of the listed records
-		'ajax' => false	// does this table support ajax?
-		) );
+		parent::__construct( 
+			array( 
+				'singular' => 'campaign', // singular name of the listed records
+				'plural' => 'campaigns', // plural name of the listed records
+				'ajax' => false	// does this table support ajax?
+			) 
+		);
 
 		//Check if user wants delete item in row
 		$this->checkDelete( );
@@ -62,7 +65,6 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
 			case 'id' :
-			
 			case 'from_name' :
 			case 'from' :
 			case 'subject' :
@@ -73,10 +75,16 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 				return mysql2date( 'd/m/Y H:m:i' ,$item[ $column_name ] );
 			break;
 			case 'todo' :
-				return self::getCampaignTodo($item['id']);
+				return self::getCampaignTodo( $item['id'] );
 			break;
 			case 'current_status' :
 				return Bea_Sender_Client::getStatus($item[ $column_name ]);
+			break;
+			case 'success' :
+				return self::getCampaignSend( $item['id'] );
+			break;
+			case 'failed' :
+				return self::getCampaignFailed( $item['id'] );
 			break;
 			default :
 				return print_r( $item, true );
@@ -106,7 +114,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function get_columns( ) {
-		return array( 'cb' => '<input type="checkbox" />', 'id' => __( 'ID', 'bea_sender' ), 'current_status' => __( 'Status', 'bea_sender' ), 'add_date' => __( 'Date added', 'bea_sender' ), 'scheduled_from' => __( 'Scheduled from', 'bea_sender' ), 'from' => __( 'From', 'bea_sender' ), 'from_name' => __( 'From name', 'bea_sender' ), 'subject' => __( 'Subject', 'bea_sender' ), 'todo' => __( 'Emails to send', 'bea_sender' ), );
+		return array( 'cb' => '<input type="checkbox" />', 'id' => __( 'ID', 'bea_sender' ), 'current_status' => __( 'Status', 'bea_sender' ), 'add_date' => __( 'Date added', 'bea_sender' ), 'scheduled_from' => __( 'Scheduled from', 'bea_sender' ), 'from' => __( 'From', 'bea_sender' ), 'from_name' => __( 'From name', 'bea_sender' ), 'subject' => __( 'Subject', 'bea_sender' ), 'todo' => __( 'Emails to send', 'bea_sender' ),'success' => Bea_Sender_Client::getStatus( 'send' ), 'failed' => Bea_Sender_Client::getStatus( 'failed' ), );
 	}
 
 	/**
@@ -151,13 +159,28 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 
 	private static function getCampaignTodo( $c_id ) {
 		global $wpdb;
-		return $wpdb->get_var( "
+		return self::getCampaignStatusCount( $c_id, 'pending' );
+	}
+	
+	private static function getCampaignFailed( $c_id ) {
+		global $wpdb;
+		return self::getCampaignStatusCount( $c_id, 'failed' );
+	}
+	
+	private static function getCampaignSend( $c_id ) {
+		global $wpdb;
+		return self::getCampaignStatusCount( $c_id, 'send' );
+	}
+	
+	private static function getCampaignStatusCount( $c_id, $status ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "
 		SELECT 
-			COUNT( reca.id ) as todo
+			COUNT( reca.id ) as failed
 		FROM $wpdb->bea_s_re_ca as reca
 		WHERE 1 = 1 
-		AND reca.current_status = 'pending'
-		AND reca.id_campaign = $c_id" );
+		AND reca.current_status = %s
+		AND reca.id_campaign = %d", $status, $c_id ) );
 	}
 
 	/**
