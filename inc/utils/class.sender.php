@@ -16,7 +16,7 @@ class Bea_Sender_Sender {
 	private function getCampaigns() {
 		global $wpdb;
 		
-		$cols = $wpdb->get_col( "SELECT id FROM $wpdb->bea_s_campaigns WHERE current_status IN( '".implode( "','", Bea_Sender_Campaign::getAuthStatuses() )."' ) AND scheduled_from <= NOW() ORDER BY add_date ASC" );
+		$cols = $wpdb->get_col( "SELECT id FROM $wpdb->bea_s_campaigns WHERE current_status IN( '".implode( "','", Bea_Sender_Campaign::getAuthStatuses() )."' ) AND scheduled_from <= '".current_time( 'mysql' )."' ORDER BY add_date ASC" );
 		
 		if( !isset( $cols ) || empty( $cols ) ) {
 			$this->campaigns = array();
