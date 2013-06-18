@@ -227,7 +227,7 @@ class Bea_Sender_Campaign {
 			return false;
 		}
 		
-		$add_date = date( 'Y-m-d H:i:s' );
+		$add_date = current_time( 'mysql' );
 		if( !isset( $data['scheduled_from'] ) || empty( $data['scheduled_from'] ) ) {
 			$data['scheduled_from'] = $add_date;
 		}
