@@ -20,10 +20,12 @@ class Bea_Sender_Client {
 		global $wpdb;
 		
 		// Charset
-		if ( ! empty($wpdb->charset) )
+		if ( ! empty($wpdb->charset) ) {
 			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-		if ( ! empty($wpdb->collate) )
+		}
+		if ( ! empty($wpdb->collate) ) {
 			$charset_collate .= " COLLATE $wpdb->collate";
+		}
 		
 		// Add one library admin function for next function
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -38,8 +40,8 @@ class Bea_Sender_Client {
 			`from` varchar(255) NOT NULL,
 			`subject` text NOT NULL
 		) $charset_collate;" );
-		add_clean_index( $table_name, 'id' );
-		add_clean_index( $table_name, 'current_status' );
+		add_clean_index( $wpdb->bea_s_campaigns, 'id' );
+		add_clean_index( $wpdb->bea_s_campaigns, 'current_status' );
 		
 		// Receiver Table
 		maybe_create_table( $wpdb->bea_s_receivers, "CREATE TABLE ".$wpdb->bea_s_receivers." (
@@ -71,7 +73,7 @@ class Bea_Sender_Client {
 			`html` longtext NOT NULL,
 			`text` longtext NOT NULL
 		) $charset_collate;" );
-		add_clean_index( $wpdb->bea_s_content, 'id' );
+		add_clean_index( $wpdb->bea_s_contents, 'id' );
 	}
 	
 	public static function getStatus( $slug ) {
