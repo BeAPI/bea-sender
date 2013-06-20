@@ -31,10 +31,12 @@ require( BEA_SENDER_DIR.'/inc/utils/'.'class.campaign.php' );
 require( BEA_SENDER_DIR.'/inc/utils/'.'class.content.php' );
 require( BEA_SENDER_DIR.'/inc/utils/'.'class.receiver.php' );
 require( BEA_SENDER_DIR.'/inc/utils/'.'class.sender.php' );
-if ( is_admin() && !class_exists( 'WP_List_Table' ) ) {
+if ( is_admin() ) {
+    if(!class_exists( 'WP_List_Table' )){
 	require ( ABSPATH . '/wp-admin/includes/class-wp-list-table.php' );
+    }
+    require( BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.php' );
 }
-require( BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.php' );
 
 // Inc
 require( BEA_SENDER_DIR.'/inc/'.'class.client.php' );
