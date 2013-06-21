@@ -1,6 +1,8 @@
 <?php
 class Bea_Sender_Admin {
-		private $ListTable = null;
+	private $ListTable = null;
+	private $campaign_table = null;
+	
 	/** 
 	 * Constructor
 	 *
@@ -31,6 +33,13 @@ class Bea_Sender_Admin {
 	 */
 	function init_table() {
 		$this->ListTable = new Bea_Sender_Admin_Table();
+	}
+	
+	/**
+	 * Instanciate custom WP List table after current_screen defined
+	 */
+	function init_campaign_table() {
+		//$this->campaign_table = new Bea_Sender_Admin_Campaign_Table();
 	}
 	
 	/**
@@ -107,7 +116,11 @@ class Bea_Sender_Admin {
 			}
 		}
 		
-		$file = BEA_SENDER_DIR.'/templates/admin-table.php';
+		if( !isset( $_GET['c_id'] ) ) {
+			$file = BEA_SENDER_DIR.'/templates/admin-table.php';
+		} else {
+			$file = BEA_SENDER_DIR.'/templates/admin-campaign-single.php';
+		}
 		if( !is_file( $file ) ) {
 			return false;
 		} else {

@@ -64,7 +64,6 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case 'id' :
 			case 'from_name' :
 			case 'from' :
 			case 'subject' :
@@ -85,6 +84,9 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			break;
 			case 'failed' :
 				return self::getCampaignFailed( $item['id'] );
+			break;
+			case 'id' :
+				return '<a href="'.add_query_arg( array( 'c_id' => $item[$column_name], 'page' => 'bea_sender' ), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
 			break;
 			default :
 				return print_r( $item, true );
