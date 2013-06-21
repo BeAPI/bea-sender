@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 class Bea_Sender_Campaign {
 	
