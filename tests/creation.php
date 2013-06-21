@@ -2,18 +2,18 @@
 require( dirname(__FILE__) . '/config.php' );
 
 $data_campaign = array(
-	'from' => 'njuen+sender@beapi.fr',
+	'from' => 'no-reply@fenici.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests normal',
 
 );
 $data = array(
-	'njuen+receiver1@beapi.fr',
-	'njuen+receiver2@beapi.fr',
-	'njuen+receiver3@beapi.fr',
-	'njuen+receiver4@beapi.fr',
-	'njuen+receiver5@beapi.fr',
-	'njuen+receiver6@beapi.fr',
+	'njuen+receiver1@behrthi.fr',
+	'njuen+receiver2@betrhtrhi.fr',
+	'njuen+receiver3@betrhtrhi.fr',
+	'njuen+receiver4@betrhtrhi.fr',
+	'njuen+receiver5@bthtrhei.fr',
+	'njuen+receiver6@btrhtrhtrei.fr',
 );
 
 $content_html = '<div>HTML Not multiple Okokokokokok</div>';
@@ -28,7 +28,7 @@ if( !empty( $insert ) ) {
 }
 
 $data_campaign = array(
-	'from' => 'njuen+sender@beapi.fr',
+	'from' => 'no-reply@fenici.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests mutltiple',
 );
@@ -37,32 +37,32 @@ $content_html = '<div>HTML Multiple</div>';
 $content_text = '<div>TEXT multiple</div>';
 $data = array(
 	array( 
-		'email' => 'njuen+receiver1@beapi.fr',
+		'email' => 'no-reply@fenici.fr',
 		'html' => '1'.$content_html,
 		'text' => '1'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver2@beapi.fr',
+		'email' => 'njuen+receiver2@betyjtyji.fr',
 		'html' => '2'.$content_html,
 		'text' => '2'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver3@beapi.fr',
+		'email' => 'njuen+receiver3@betyjtyi.fr',
 		'html' => '3'.$content_html,
 		'text' => '3'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver4@beapi.fr',
+		'email' => 'njuen+receiver4@betyjtyji.fr',
 		'html' => '4'.$content_html,
 		'text' => '4'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver5@beapi.fr',
+		'email' => 'njuen+receiver5@betyjtyji.fr',
 		'html' => '5'.$content_html,
 		'text' => '5'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver6@beapi.fr',
+		'email' => 'njuen+receiver6@bjtyjtyei.fr',
 		'html' => '6'.$content_html,
 		'text' => '6'.$content_text,
 	),
@@ -77,7 +77,7 @@ if( !empty( $insert ) ) {
 }
 
 $data_campaign = array(
-	'from' => 'njuen+sender@beapi.fr',
+	'from' => 'no-reply@fenici.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests mutltiple',
 	'scheduled_from' => date( 'Y-m-d H:m:i' ,strtotime( '+15 minutes' ) )
@@ -87,32 +87,32 @@ $content_html = '<div>HTML Multiple</div>';
 $content_text = '<div>TEXT multiple</div>';
 $data = array(
 	array( 
-		'email' => 'njuen+receiver1@beapi.fr',
+		'email' => 'njuen+receiver1@beityjtyj.fr',
 		'html' => '1'.$content_html,
 		'text' => '1'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver2@beapi.fr',
+		'email' => 'njuen+receiver2@beityjtyj.fr',
 		'html' => '2'.$content_html,
 		'text' => '2'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver3@beapi.fr',
+		'email' => 'njuen+receiver3@beityjtyj.fr',
 		'html' => '3'.$content_html,
 		'text' => '3'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver4@beapi.fr',
+		'email' => 'njuen+receiver4@beityjty.fr',
 		'html' => '4'.$content_html,
 		'text' => '4'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver5@beapi.fr',
+		'email' => 'njuen+receiver5@betyjtyji.fr',
 		'html' => '5'.$content_html,
 		'text' => '5'.$content_text,
 	),
 	array( 
-		'email' => 'njuen+receiver6@beapi.fr',
+		'email' => 'njuen+receiver6@bejytjtyji.fr',
 		'html' => '6'.$content_html,
 		'text' => '6'.$content_text,
 	),

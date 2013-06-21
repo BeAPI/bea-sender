@@ -17,6 +17,8 @@ class Bea_Sender_Email {
 			require_once ABSPATH . WPINC . '/class-smtp.php';
 			$phpmailer = new PHPMailer();
 		}
+                
+                $phpmailer->Sender = 'no-reply@fenici.fr';
 		
 		// Headers
 		if ( empty( $headers ) ) {
