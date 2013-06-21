@@ -64,7 +64,6 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case 'id' :
 			case 'from_name' :
 			case 'from' :
 			case 'subject' :
@@ -85,6 +84,9 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			break;
 			case 'failed' :
 				return self::getCampaignFailed( $item['id'] );
+			break;
+			case 'id' :
+				return '<a href="'.add_query_arg( array( 'c_id' => $item[$column_name], 'page' => 'bea_sender' ), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
 			break;
 			default :
 				return print_r( $item, true );
@@ -129,7 +131,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		// If no sort, default to title
 		$_orderby = (!empty( $_GET[ 'orderby' ] ) && in_array( $_GET[ 'orderby' ], self::$auth_order )) ? $_GET[ 'orderby' ] : 'id';
 		// If no order, default to asc
-		$_order = (!empty( $_GET[ 'order' ] ) && in_array( $_GET[ "order" ], array( 'asc', 'desc' ) )) ? $_GET[ "order" ] : 'asc';
+		$_order = (!empty( $_GET[ 'order' ] ) && in_array( $_GET[ "order" ], array( 'asc', 'desc' ) )) ? $_GET[ "order" ] : 'desc';
 		$order_by = " ORDER BY $_orderby $_order";
 
 		// Make the order
@@ -145,7 +147,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			c.add_date, 
 			c.scheduled_from, 
 			c.from, 
-			c.from_name, 
+			c.from_name,
 			c.subject
 		FROM 
 		$wpdb->bea_s_campaigns as c

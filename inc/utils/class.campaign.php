@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 class Bea_Sender_Campaign {
 	
@@ -20,6 +21,8 @@ class Bea_Sender_Campaign {
 		'progress',
 		'done'
 	);
+	
+	private $receivers;
 	
 	function __construct( $id = 0 ) {
 		// Init the object by getting informations from the database
@@ -364,4 +367,36 @@ class Bea_Sender_Campaign {
 	function mailFromName() {
 		return $this->from_name;
 	}
+	/**
+	 * 
+	 * 
+	 * @return Bea_Sender_Receiver objects
+	 * 
+	 */
+	public function get_receivers() {
+		global $wpdb;
+		
+		$receivers = $wpdb->get_results( $wpdb->prepare( 
+			"SELECT 
+				*
+			FROM $wpdb->bea_s_re_ca AS reca
+				JOIN $wpdb->bea_s_receivers AS r ON r.id = reca.id_receiver
+			WHERE
+				1=1
+				AND reca.id_campaign = %d
+			",
+			$this->id
+		) );
+		
+		foreach ( $receivers as $receiver ) {
+			$re = new Bea_Sender_Receiver( $receiver->email );
+			if( $re->set_receiver( $this->id ) === false ) {
+				continue;
+			}
+			$this->receivers[] = $re;
+		}
+		
+		return $this->receivers;
+	}
+
 }
