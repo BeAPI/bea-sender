@@ -12,7 +12,7 @@ $campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
 $receivers = $campaign->get_receivers();
 ?>
 <div class="wrap"> 
-	<h2><?php _e( 'Bea Send - Campaign', 'bea_sender' ); ?><a class="add-new-h2" href="<?php echo add_query_arg( array( 'page' => 'bea_sender' ), admin_url( '/tools.php' ) ); ?>"> Retourner aux campagnes </a></h2>
+	<h2><?php _e( 'Bea Send - Campaign', 'bea_sender' ); ?><a class="add-new-h2" href="<?php echo add_query_arg( array( 'page' => 'bea_sender' ), admin_url( '/tools.php' ) ); ?>"> <?php _e( 'Return to campaigns', 'bea_sender') ?></a></h2>
 	<?php $this->ListTableSingle->prepare_items( ); ?>
 	<form method="get" action="">
 		<input type="hidden" name="page" value="bea_sender" />
