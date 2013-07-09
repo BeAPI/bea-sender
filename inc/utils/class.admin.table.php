@@ -6,7 +6,14 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @return array() $auth_order
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
-	private static $auth_order = array( 'id', 'add_date', 'scheduled_from','current_status', 'success', 'failed' );
+	private static $auth_order = array(
+		'id',
+		'add_date',
+		'scheduled_from',
+		'current_status',
+		'success',
+		'failed'
+	);
 
 	/**
 	 * Constructor
@@ -15,17 +22,15 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	public function __construct( ) {
-		parent::__construct( 
-			array( 
-				'singular' => 'campaign', // singular name of the listed records
-				'plural' => 'campaigns', // plural name of the listed records
-				'ajax' => false	// does this table support ajax?
-			) 
-		);
+		parent::__construct( array(
+			'singular' => 'campaign', // singular name of the listed records
+			'plural' => 'campaigns', // plural name of the listed records
+			'ajax' => false	// does this table support ajax?
+		) );
 		//Check if user wants delete item in row
 		$this->checkDelete( );
-                //Export bea_s_receivers database in CSV
-                $this->generateCSV( );
+		//Export bea_s_receivers database in CSV
+		$this->generateCSV( );
 	}
 
 	/**
@@ -37,17 +42,17 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	function no_items( ) {
 		_e( 'No campaigns found.', 'bea_sender' );
 	}
-	
-	function get_views() {
+
+	function get_views( ) {
 		$base_url = add_query_arg( array( 'page' => 'bea_sender' ), admin_url( 'tools.php' ) );
-		
-		$add  = array( 'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea_sender' ), $base_url, self::current_view( 'all' ) ) );
+
+		$add = array( 'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea_sender' ), $base_url, self::current_view( 'all' ) ) );
 		foreach( Bea_Sender_Campaign::getAuthStatuses() as $status ) {
 			$add[$status] = sprintf( '<a href="%s" class="%s" >%s</a>', add_query_arg( array( 'current_status' => $status ), $base_url ), self::current_view( $status ), Bea_Sender_Client::getStatus( $status ) );
 		}
 		return $add;
 	}
-	
+
 	private static function current_view( $slug ) {
 		if( isset( $_GET['current_status'] ) && $_GET['current_status'] === $slug ) {
 			return 'current';
@@ -69,26 +74,29 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			case 'from' :
 			case 'subject' :
 				return $item[$column_name];
-			break;
+				break;
 			case 'add_date' :
 			case 'scheduled_from' :
-				return mysql2date( 'd/m/Y H:m:i' ,$item[ $column_name ] );
-			break;
+				return mysql2date( 'd/m/Y H:m:i', $item[$column_name] );
+				break;
 			case 'todo' :
 				return self::getCampaignTodo( $item['id'] );
-			break;
+				break;
 			case 'current_status' :
-				return Bea_Sender_Client::getStatus($item[ $column_name ]);
-			break;
+				return Bea_Sender_Client::getStatus( $item[$column_name] );
+				break;
 			case 'success' :
 				return self::getCampaignSend( $item['id'] );
-			break;
+				break;
 			case 'failed' :
 				return self::getCampaignFailed( $item['id'] );
-			break;
+				break;
 			case 'id' :
-				return '<a href="'.add_query_arg( array( 'c_id' => $item[$column_name], 'page' => 'bea_sender' ), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
-			break;
+				return '<a href="'.add_query_arg( array(
+					'c_id' => $item[$column_name],
+					'page' => 'bea_sender'
+				), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
+				break;
 			default :
 				return print_r( $item, true );
 				//Show the whole array for troubleshooting purposes
@@ -102,11 +110,23 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function get_sortable_columns( ) {
-		return array( 
-		'id' 				=> array( 'id', false ),
-		'current_status' 	=> array( 'current_status', false ),
-		'add_date' 			=> array( 'add_date', false ), 
-		'scheduled_from' 	=> array( 'scheduled_from', false ),
+		return array(
+			'id' => array(
+				'id',
+				false
+			),
+			'current_status' => array(
+				'current_status',
+				false
+			),
+			'add_date' => array(
+				'add_date',
+				false
+			),
+			'scheduled_from' => array(
+				'scheduled_from',
+				false
+			),
 		);
 	}
 
@@ -117,7 +137,19 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function get_columns( ) {
-		return array( 'cb' => '<input type="checkbox" />', 'id' => __( 'ID', 'bea_sender' ), 'current_status' => __( 'Status', 'bea_sender' ), 'add_date' => __( 'Date added', 'bea_sender' ), 'scheduled_from' => __( 'Scheduled from', 'bea_sender' ), 'from' => __( 'From', 'bea_sender' ), 'from_name' => __( 'From name', 'bea_sender' ), 'subject' => __( 'Subject', 'bea_sender' ), 'todo' => __( 'Emails to send', 'bea_sender' ),'success' => Bea_Sender_Client::getStatus( 'send' ), 'failed' => Bea_Sender_Client::getStatus( 'failed' ), );
+		return array(
+			'cb' => '<input type="checkbox" />',
+			'id' => __( 'ID', 'bea_sender' ),
+			'current_status' => __( 'Status', 'bea_sender' ),
+			'add_date' => __( 'Date added', 'bea_sender' ),
+			'scheduled_from' => __( 'Scheduled from', 'bea_sender' ),
+			'from' => __( 'From', 'bea_sender' ),
+			'from_name' => __( 'From name', 'bea_sender' ),
+			'subject' => __( 'Subject', 'bea_sender' ),
+			'todo' => __( 'Emails to send', 'bea_sender' ),
+			'success' => Bea_Sender_Client::getStatus( 'send' ),
+			'failed' => Bea_Sender_Client::getStatus( 'failed' ),
+		);
 	}
 
 	/**
@@ -130,17 +162,20 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		global $wpdb;
 
 		// If no sort, default to title
-		$_orderby = (!empty( $_GET[ 'orderby' ] ) && in_array( $_GET[ 'orderby' ], self::$auth_order )) ? $_GET[ 'orderby' ] : 'id';
+		$_orderby = (!empty( $_GET['orderby'] ) && in_array( $_GET['orderby'], self::$auth_order )) ? $_GET['orderby'] : 'id';
 		// If no order, default to asc
-		$_order = (!empty( $_GET[ 'order' ] ) && in_array( $_GET[ "order" ], array( 'asc', 'desc' ) )) ? $_GET[ "order" ] : 'desc';
+		$_order = (!empty( $_GET['order'] ) && in_array( $_GET["order"], array(
+			'asc',
+			'desc'
+		) )) ? $_GET["order"] : 'desc';
 		$order_by = " ORDER BY $_orderby $_order";
 
 		// Make the order
 		$limit = $wpdb->prepare( ' LIMIT %d,%d', ($this->get_pagenum( ) == 1 ? 0 : $this->get_pagenum( )), $this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ) );
-		
+
 		// fitlering by status
-		$filter = self::get_status_filter();
-		
+		$filter = self::get_status_filter( );
+
 		return $wpdb->get_results( "
 		SELECT 
 			c.id, 
@@ -164,17 +199,17 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'pending' );
 	}
-	
+
 	private static function getCampaignFailed( $c_id ) {
 		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'failed' );
 	}
-	
+
 	private static function getCampaignSend( $c_id ) {
 		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'send' );
 	}
-	
+
 	private static function getCampaignStatusCount( $c_id, $status ) {
 		global $wpdb;
 		return $wpdb->get_var( $wpdb->prepare( "
@@ -194,31 +229,39 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 */
 	function totalItems( ) {
 		global $wpdb;
-		$filter = self::get_status_filter();
+		$filter = self::get_status_filter( );
 		return (int)$wpdb->get_var( "SELECT COUNT( id ) FROM $wpdb->bea_s_campaigns WHERE 1 = 1 $filter" );
 	}
-	
-	private static function get_status_filter() {
+
+	private static function get_status_filter( ) {
 		global $wpdb;
-		return  !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Bea_Sender_Campaign::getAuthStatuses() ) ? '' : $wpdb->prepare( ' AND c.current_status = %s', $_GET['current_status'] ) ;
+		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Bea_Sender_Campaign::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND c.current_status = %s', $_GET['current_status'] );
 	}
 
 	/**
-	 * Prepare the table with different parameters, pagination, columns and table elements
+	 * Prepare the table with different parameters, pagination, columns and table
+	 * elements
 	 *
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function prepare_items( ) {
-		$this->_column_headers = array( $this->get_columns( ), array( ), $this->get_sortable_columns( ) );
+		$this->_column_headers = array(
+			$this->get_columns( ),
+			array( ),
+			$this->get_sortable_columns( )
+		);
 
 		// Get total items
 		$total_items = $this->totalItems( );
 		$elements_per_page = $this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP );
 
 		// Set the pagination
-		$this->set_pagination_args( array( 'total_items' => $total_items, //WE have to calculate the total number of items
-		'per_page' => $elements_per_page, //WE have to determine how many items to show on a page
-		'total_pages' => ceil( $total_items / $elements_per_page ) ) );
+		$this->set_pagination_args( array(
+			'total_items' => $total_items, //WE have to calculate the total number of items
+			'per_page' => $elements_per_page, //WE have to determine how many items to show
+			// on a page
+			'total_pages' => ceil( $total_items / $elements_per_page )
+		) );
 
 		$this->items = $this->prepareQuery( );
 	}
@@ -230,7 +273,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function column_cb( $item ) {
-		return sprintf( '<input type="checkbox" name="id[]" value="%s" />', $item[ 'id' ] );
+		return sprintf( '<input type="checkbox" name="id[]" value="%s" />', $item['id'] );
 	}
 
 	/**
@@ -251,19 +294,19 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function checkDelete( ) {
-		if( !isset( $_GET[ 'page' ] ) || $_GET[ 'page' ] != 'bea_sender' || !isset( $_GET[ 'action' ] ) ) {
+		if( !isset( $_GET['page'] ) || $_GET['page'] != 'bea_sender' || !isset( $_GET['action'] ) ) {
 			return false;
 		}
 
 		$action = $this->current_action( );
-		if( empty( $action ) || !array_key_exists( $action, $this->get_bulk_actions( ) ) || !isset( $_GET[ 'id' ] ) || empty( $_GET[ 'id' ] ) ) {
+		if( empty( $action ) || !array_key_exists( $action, $this->get_bulk_actions( ) ) || !isset( $_GET['id'] ) || empty( $_GET['id'] ) ) {
 			add_settings_error( 'bea_sender', 'settings_updated', __( 'Oups! You probably forgot to tick campaigns to delete?', 'bea_sender' ), 'error' );
 			return false;
 		}
 
 		check_admin_referer( 'bulk-campaigns' );
 
-		$_GET[ 'id' ] = array_map( 'absint', $_GET[ 'id' ] );
+		$_GET['id'] = array_map( 'absint', $_GET['id'] );
 
 		switch ( $action ) {
 			case 'delete' :
@@ -271,10 +314,10 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 				foreach( $_GET['id'] as $c_id ) {
 					$result = 0;
 					$c = new Bea_Sender_Campaign( $c_id );
-					if( $c->isData() !== true  ) {
+					if( $c->isData( ) !== true ) {
 						$message_code = 0;
-					} else{
-						$result = $c->deleteCampaign();
+					} else {
+						$result = $c->deleteCampaign( );
 						$total += $result;
 						if( $result == 0 ) {
 							$message_code = 1;
@@ -283,8 +326,12 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 						}
 					}
 				}
-				
-				wp_redirect( add_query_arg( array( 'page' => 'bea_sender', 'message-code' => $message_code, 'message-value' => $total ), admin_url( 'tools.php' ) ) );
+
+				wp_redirect( add_query_arg( array(
+					'page' => 'bea_sender',
+					'message-code' => $message_code,
+					'message-value' => $total
+				), admin_url( 'tools.php' ) ) );
 				exit( );
 				break;
 			default :
@@ -293,44 +340,59 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 
 		return true;
 	}
-         /**
+
+	/**
 	 * Export bea_s_receivers table in CSV
 	 *
-	 * 
+	 *
 	 * @author Salah Khouildi
 	 */
-        public function generateCSV() {
+	public function generateCSV( ) {
 
-            if (!isset($_GET['bea_s-export'])) {
-                return false;
-            }
+		if( !isset( $_GET['bea_s-export'] ) ) {
+			return false;
+		}
 
-            global $wpdb;      
+		global $wpdb;
 
-            $header_titles = array('Id', 'Email', 'Current status', 'Bounce cat', 'Bounce type', 'Bounce no');
+		$header_titles = array(
+			'Id',
+			'Email',
+			'Current status',
+			'Bounce cat',
+			'Bounce type',
+			'Bounce no'
+		);
 
-            $contacts = $wpdb->get_results("SELECT * FROM $wpdb->bea_s_receivers");
-            foreach ( $contacts as $contact ) 
-            {
-               $list[] = array($contact->id, $contact->email, $contact->current_status, $contact->bounce_cat, $contact->bounce_type, $contact->bounce_no );
-            }
+		$contacts = $wpdb->get_results( "SELECT * FROM $wpdb->bea_s_receivers" );
+		foreach( $contacts as $contact ) {
+			$list[] = array(
+				$contact->id,
+				$contact->email,
+				$contact->current_status,
+				$contact->bounce_cat,
+				$contact->bounce_type,
+				$contact->bounce_no
+			);
+		}
 
-            header("Pragma: public");
-            header("Expires: 0");
-            header("Cache-Control: private");
-            header("Content-type: text/csv");
-            header("Content-Disposition: attachment; filename=bea-send-" . date('d-m-y') . ".csv");
-            header("Accept-Ranges: bytes");
+		header( "Pragma: public" );
+		header( "Expires: 0" );
+		header( "Cache-Control: private" );
+		header( "Content-type: text/csv" );
+		header( "Content-Disposition: attachment; filename=bea-send-".date( 'd-m-y' ).".csv" );
+		header( "Accept-Ranges: bytes" );
 
-            $outstream = fopen("php://output", 'w');
-            //Put header titles
-            fputcsv($outstream, array_map('utf8_decode', $header_titles), ';');
-            // Put lines in csv file
-            foreach ($list as $fields) {
-                fputcsv($outstream, array_map('utf8_decode', $fields), ';');
-            }
+		$outstream = fopen( "php://output", 'w' );
+		//Put header titles
+		fputcsv( $outstream, array_map( 'utf8_decode', $header_titles ), ';' );
+		// Put lines in csv file
+		foreach( $list as $fields ) {
+			fputcsv( $outstream, array_map( 'utf8_decode', $fields ), ';' );
+		}
 
-            fclose($outstream);
-            die();
-        }	
+		fclose( $outstream );
+		die( );
+	}
+
 }
