@@ -22,9 +22,10 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 				'ajax' => false	// does this table support ajax?
 			) 
 		);
-
 		//Check if user wants delete item in row
 		$this->checkDelete( );
+                //Export bea_s_receivers database in CSV
+                $this->generateCSV( );
 	}
 
 	/**
@@ -292,4 +293,44 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 
 		return true;
 	}
+         /**
+	 * Export bea_s_receivers table in CSV
+	 *
+	 * 
+	 * @author Salah Khouildi
+	 */
+        public function generateCSV() {
+
+            if (!isset($_GET['bea_s-export'])) {
+                return false;
+            }
+
+            global $wpdb;      
+
+            $header_titles = array('Id', 'Email', 'Current status', 'Bounce cat', 'Bounce type', 'Bounce no');
+
+            $contacts = $wpdb->get_results("SELECT * FROM $wpdb->bea_s_receivers");
+            foreach ( $contacts as $contact ) 
+            {
+               $list[] = array($contact->id, $contact->email, $contact->current_status, $contact->bounce_cat, $contact->bounce_type, $contact->bounce_no );
+            }
+
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: private");
+            header("Content-type: text/csv");
+            header("Content-Disposition: attachment; filename=bea-send-" . date('d-m-y') . ".csv");
+            header("Accept-Ranges: bytes");
+
+            $outstream = fopen("php://output", 'w');
+            //Put header titles
+            fputcsv($outstream, array_map('utf8_decode', $header_titles), ';');
+            // Put lines in csv file
+            foreach ($list as $fields) {
+                fputcsv($outstream, array_map('utf8_decode', $fields), ';');
+            }
+
+            fclose($outstream);
+            die();
+        }	
 }

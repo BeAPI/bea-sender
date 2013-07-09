@@ -72,13 +72,14 @@ $rule_categories = array(
 function bmhBodyRules($body,$structure,$debug_mode=false) {
   // initialize the result array
   $result = array(
-     'email'       => ''
-    ,'bounce_type' => false
-    ,'remove'      => 0
-    ,'rule_cat'    => 'unrecognized'
-    ,'rule_no'     => '0000'
+     'email'       => '',
+     'bounce_type' => '0.0.0',
+     'remove'      => 0,
+     'rule_cat'    => 'unrecognized',
+     'rule_no'     => '0000',
   );
-
+  
+    
   // ======== rule =========
 
   /*
@@ -120,6 +121,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'unknown';
     $result['rule_no']     = '0157';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '5.1.1';
   }
 
   /*
@@ -132,6 +134,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'unknown';
     $result['rule_no']     = '0164';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '5.1.1';
   }
 
   /*
@@ -259,20 +262,9 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'full';
     $result['rule_no']     = '0182';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '5.2.2';
   }
 
-  /*
-   * rule: mailbox full;
-   * sample:
-   *   ----- Transcript of session follows -----
-   * mail.local: /var/mail/2b/10/kellen.lee: Disc quota exceeded
-   * 554 <xxxxx@yourdomain.com>... Service unavailable 
-   */
-  elseif (preg_match ("*quota exceeded.*\n?.*<(\S+@\S+\w)>/i",$body,$match)) {
-    $result['rule_cat']    = 'full';
-    $result['rule_no']     = '0126';
-    $result['email']       = $match[1];
-  }
 
   /*
    * rule: mailbox full;
@@ -285,6 +277,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'full';
     $result['rule_no']     = '0158';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '4.3.0';
   }
 
   /*
@@ -345,6 +338,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['bounce_type'] = 'hard';
     $result['remove']      = 1;
     $result['email']       = $match[1];
+    $result['bounce_type'] = '4.3.0';
   }
 
   /*
@@ -372,6 +366,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'defer';
     $result['rule_no']     = '0163';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '4.16.5';
   }
 
   /*
@@ -424,6 +419,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     $result['rule_cat']    = 'unknown';
     $result['rule_no']     = '0046';
     $result['email']       = $match[1];
+    $result['bounce_type'] = '5.1.1';
   }
 
 
@@ -458,6 +454,7 @@ function bmhBodyRules($body,$structure,$debug_mode=false) {
     }
   }
   return $result;
+
 }
 
 /**
@@ -473,11 +470,14 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
   // initialize the result array
   $result = array(
     'email'        => ''
-    ,'bounce_type' => false
+    ,'bounce_type' => '0.0.0'
     ,'remove'      => 0
     ,'rule_cat'    => 'unrecognized'
     ,'rule_no'     => '0000'
   );
+   // rule for get the campaign id
+     $result['campaign_id'] = '';
+   
   $action      = false;
   $status_code = false;
   $diag_code   = false;
@@ -534,6 +534,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         if (preg_match ("/over.*quota/is",$diag_code)) {
           $result['rule_cat']    = 'full';
           $result['rule_no']     = '0105';
+          $result['bounce_type'] = '5.2.2';
         }
         /* rule: full
          * sample:
@@ -558,6 +559,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*full/is",$diag_code)) {
           $result['rule_cat']    = 'full';
           $result['rule_no']     = '0145';
+          $result['bounce_type'] = '5.2.2';
         }
         /* rule: full
          * sample:
@@ -586,6 +588,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/larger than.*limit/is",$diag_code)) {
           $result['rule_cat']    = 'oversize';
           $result['rule_no']     = '0146';
+          $result['bounce_type'] = '5.2.2';
         }
         /* rule: unknown
          * sample:
@@ -622,6 +625,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/no.*valid.*(?:alias|account|recipient|address|email|mailbox|user)/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0185';
+          $result['bounce_type'] = '5.1.3';
         }
         /* rule: unknown
          * sample 1:
@@ -634,6 +638,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Invalid.*(?:alias|account|recipient|address|email|mailbox|user)/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0111';
+          $result['bounce_type'] = '5.5.0';
         }
         /* rule: unknown
          * sample:
@@ -658,6 +663,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:unknown|illegal).*(?:alias|account|recipient|address|email|mailbox|user)/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0128';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample 1:
@@ -668,6 +674,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*(?:un|not\s+)available/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0122';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: unknown
          * sample:
@@ -686,6 +693,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*unknown/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0125';
+          $result['bounce_type'] = '5.3.0';
         }
         /* rule: unknown
          * sample 1:
@@ -696,6 +704,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*disabled/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0133';
+          $result['bounce_type'] = '4.2.1';
         }
         /* rule: unknown
          * sample:
@@ -735,6 +744,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*reject/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0148';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample:
@@ -743,6 +753,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/bounce.*administrator/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0151';
+          $result['bounce_type'] = '5.x.0';
         }
         /* rule: unknown
          * sample:
@@ -767,6 +778,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Wrong (?:alias|account|recipient|address|email|mailbox|user)/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0159';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample:
@@ -777,6 +789,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:unknown|bad).*(?:alias|account|recipient|address|email|mailbox|user)/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0160';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample:
@@ -793,6 +806,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Access.*Denied/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0189';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: unknown
          * sample:
@@ -801,6 +815,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*lookup.*fail/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0195';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample:
@@ -835,6 +850,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*(?:n't|not) exist/is",$diag_code)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0205';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: unknown
          * sample:
@@ -901,6 +917,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*no longer exist/is",$diag_code)) {
           $result['rule_cat']    = 'inactive';
           $result['rule_no']     = '0184';
+          $result['bounce_type'] = '5.3.0';
         }
         /* rule: inactive
          * sample:
@@ -909,6 +926,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:forgery|abuse)/is",$diag_code)) {
           $result['rule_cat']    = 'inactive';
           $result['rule_no']     = '0196';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: inactive
          * sample:
@@ -957,6 +975,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/No permit/is",$diag_code)) {
           $result['rule_cat']    = 'command_reject';
           $result['rule_no']     = '0190';
+          $result['bounce_type'] = '5.0.0';
         }
         /* rule: command_reject
          * sample:
@@ -965,6 +984,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/domain isn't in.*allowed rcpthost/is",$diag_code)) {
           $result['rule_cat']    = 'command_reject';
           $result['rule_no']     = '0191';
+          $result['bounce_type'] = '5.5.3';
         }
         /* rule: command_reject
          * sample:
@@ -983,6 +1003,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/relay.*not.*(?:permit|allow)/is",$diag_code)) {
           $result['rule_cat']    = 'command_reject';
           $result['rule_no']     = '0201';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: command_reject
          * sample:
@@ -1016,6 +1037,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Invalid data/is",$diag_code)) {
           $result['rule_cat']    = 'command_reject';
           $result['rule_no']     = '0223';
+          $result['bounce_type'] = '5.5.2';
         }
         /* rule: command_reject
          * sample:
@@ -1059,6 +1081,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/MIME error/is",$diag_code)) {
           $result['rule_cat']    = 'content_reject';
           $result['rule_no']     = '0217';
+          $result['bounce_type'] = '5.6.0';
         }
         /* rule: content_reject
          * sample:
@@ -1116,6 +1139,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Resources temporarily unavailable/is",$diag_code)) {
           $result['rule_cat']    = 'defer';
           $result['rule_no']     = '0116';
+          $result['bounce_type'] = '4.16.4:70';
         }
         /* rule: antispam, deny ip
          * sample:
@@ -1148,6 +1172,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/denyip/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0144';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: antispam, deny ip
          * sample:
@@ -1172,6 +1197,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/spam.*detect/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0162';
+          $result['bounce_type'] = '5.6.0';
         }
         /* rule: antispam
          * sample:
@@ -1180,6 +1206,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/reject.*spam/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0216';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: antispam
          * sample:
@@ -1188,6 +1215,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/SpamTrap/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0200';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: antispam, mailfrom mismatch
          * sample:
@@ -1212,6 +1240,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/spam scale/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0211';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: antispam
          * sample:
@@ -1244,6 +1273,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/subject.*consider.*spam/is",$diag_code)) {
           $result['rule_cat']    = 'antispam';
           $result['rule_no']     = '0222';
+          $result['bounce_type'] = '5.7.1';
         }
         /* rule: internal_error
          * sample:
@@ -1260,6 +1290,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/system config error/is",$diag_code)) {
           $result['rule_cat']    = 'internal_error';
           $result['rule_no']     = '0153';
+          $result['bounce_type'] = '5.3.5';
         }
         /* rule: delayed
          * sample:
@@ -1286,6 +1317,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user)(.*)invalid/i",$dsn_msg)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0107';
+          $result['bounce_type'] = '5.0.0';
         }
         /* rule: unknown
          * sample:
@@ -1314,6 +1346,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/bad.*(?:alias|account|recipient|address|email|mailbox|user)/i",$dsn_msg)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '227';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: full
          * sample 1:
@@ -1360,6 +1393,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/(?:alias|account|recipient|address|email|mailbox|user).*full/i",$dsn_msg)) {
           $result['rule_cat']    = 'full';
           $result['rule_no']     = '0132';
+          $result['bounce_type'] = '5.0.0';
         }
         /* rule: full
          * sample:
@@ -1382,6 +1416,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Deferred.*Connection (?:refused|reset)/i",$dsn_msg)) {
           $result['rule_cat']    = 'defer';
           $result['rule_no']     = '0115';
+          $result['bounce_type'] = '4.4.1';
         }
         /* rule: dns_unknown
          * sample:
@@ -1393,6 +1428,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Invalid host name/i",$dsn_msg)) {
           $result['rule_cat']    = 'dns_unknown';
           $result['rule_no']     = '0109';
+          $result['bounce_type'] = '5.1.2';
         }
         /* rule: dns_unknown
          * sample:
@@ -1411,6 +1447,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Host unknown/i",$dsn_msg)) {
           $result['rule_cat']    = 'dns_unknown';
           $result['rule_no']     = '0140';
+          $result['bounce_type'] = '5.1.2';
         }
         /* rule: dns_unknown
          * sample:
@@ -1452,6 +1489,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/MX list.*point.*back/i",$dsn_msg)) {
           $result['rule_cat']    = 'dns_loop';
           $result['rule_no']     = '0199';
+          $result['bounce_type'] = '5.0.0';
         }
         /* rule: internal_error
          * sample:
@@ -1461,6 +1499,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/I\/O error/i",$dsn_msg)) {
           $result['rule_cat']    = 'internal_error';
           $result['rule_no']     = '0120';
+          $result['bounce_type'] = '4.0.0';
         }
         /* rule: internal_error
          * sample:
@@ -1497,6 +1536,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/User unknown/i",$dsn_msg)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0193';
+          $result['bounce_type'] = '5.1.1';
         }
         /* rule: unknown
          * sample:
@@ -1505,6 +1545,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
         elseif (preg_match ("/Service unavailable/i",$dsn_msg)) {
           $result['rule_cat']    = 'unknown';
           $result['rule_no']     = '0214';
+          $result['bounce_type'] = '5.0.0';
         }
         break;
       case 'delayed':
@@ -1532,7 +1573,7 @@ function bmhDSNRules($dsn_msg,$dsn_report,$debug_mode=false) {
     }
   } else {
     if ($result['bounce_type'] === false) {
-      $result['bounce_type'] = $rule_categories[$result['rule_cat']]['bounce_type'];
+      //$result['bounce_type'] = $rule_categories[$result['rule_cat']]['bounce_type'];
       $result['remove']      = $rule_categories[$result['rule_cat']]['remove'];
     }
   }

@@ -38,12 +38,15 @@ if (is_admin()) {
         require ( ABSPATH . '/wp-admin/includes/class-wp-list-table.php' );
     }
     require( BEA_SENDER_DIR . '/inc/utils/' . 'class.admin.table.php' );
+    require( BEA_SENDER_DIR . '/inc/utils/' . 'class.admin.bounce.tools.php' );
+    
 }
 
 // Inc
-require( BEA_SENDER_DIR . '/inc/' . 'class.client.php' );
-require( BEA_SENDER_DIR . '/inc/' . 'class.admin.php' );
-require(BEA_SENDER_DIR . '/inc/libs/php-bounce/' . 'class.phpmailer-bmh.php');
+require( BEA_SENDER_DIR . '/inc/class.client.php' );
+require( BEA_SENDER_DIR . '/inc/class.admin.php' );
+require( BEA_SENDER_DIR . '/inc/libs/wordpress-settings-api/class.settings-api.php' );
+require( BEA_SENDER_DIR . '/inc/libs/php-bounce/class.phpmailer-bmh.php');
 
 // Create tables on activation
 register_activation_hook(__FILE__, array('Bea_Sender_Client', 'activation'));
@@ -58,6 +61,7 @@ function Bea_sender_init() {
 
     if (is_admin()) {
         $bea_sender['admin'] = new Bea_Sender_Admin();
+        $bea_sender['admin_bounce_tools'] = new BEA_Admin_Settings_Main();
     }
 
     add_action('bea_sender_register_send', array($bea_sender['client'], 'registerCampaign'), 99, 4);
