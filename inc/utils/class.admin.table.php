@@ -230,7 +230,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	function totalItems( ) {
 		global $wpdb;
 		$filter = self::get_status_filter( );
-		return (int)$wpdb->get_var( "SELECT COUNT( id ) FROM $wpdb->bea_s_campaigns WHERE 1 = 1 $filter" );
+		return (int)$wpdb->get_var( "SELECT COUNT( id ) FROM $wpdb->bea_s_campaigns as c WHERE 1 = 1 $filter" );
 	}
 
 	private static function get_status_filter( ) {
