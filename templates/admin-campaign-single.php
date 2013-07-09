@@ -10,8 +10,6 @@ $campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
 
 // Get all the receivers
 $receivers = $campaign->get_receivers();
-
-
 ?>
 <div class="wrap"> 
 	<h2><?php _e( 'Bea Send - Campaign', 'bea_sender' ); ?></h2>

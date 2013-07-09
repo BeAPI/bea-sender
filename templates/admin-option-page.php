@@ -1,11 +1,10 @@
 <!-- Create a header in the default WordPress 'wrap' container -->
 <div class="wrap">
-    <div id="icon-themes" class="icon32"></div>
-    <h2><?php _e('Bea Send - Settings', 'bea_sender'); ?></h2>
-    <?php //settings_errors(); ?>
+	<?php screen_icon( ); ?>
+	<h2><?php _e( 'Bea Send - Settings', 'bea_sender' ); ?></h2>
 
-    <?php
-    self::$settings_api->show_navigation();
-    self::$settings_api->show_forms();
-    ?>
+	<?php
+	self::$settings_api->show_navigation( );
+	self::$settings_api->show_forms( );
+	?>
 </div><!-- /.wrap -->
