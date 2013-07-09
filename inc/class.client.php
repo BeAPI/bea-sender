@@ -46,6 +46,7 @@ class Bea_Sender_Client {
 			`from` varchar(255) NOT NULL,
 			`subject` text NOT NULL
 		) $charset_collate;" );
+		
 		add_clean_index( $wpdb->bea_s_campaigns, 'id' );
 		add_clean_index( $wpdb->bea_s_campaigns, 'current_status' );
 
@@ -60,9 +61,9 @@ class Bea_Sender_Client {
 			UNIQUE ( email )
 		) $charset_collate;" );
 
-		maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_cat char(20)" );
-		maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_type char(20)" );
-		maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_no char(10)" );
+		maybe_add_column( $wpdb->bea_s_receivers, 'bounce_cat', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_cat char(20)" );
+		maybe_add_column( $wpdb->bea_s_receivers, 'bounce_type', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_type char(20)" );
+		maybe_add_column( $wpdb->bea_s_receivers, 'bounce_no', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_no char(10)" );
 
 		add_clean_index( $wpdb->bea_s_receivers, 'email' );
 		add_clean_index( $wpdb->bea_s_receivers, 'current_status' );
