@@ -13,14 +13,8 @@ class BEA_Admin_Settings_Main {
 	public function __construct( ) {
 		self::$settings_api = new WeDevs_Settings_API( );
 
-		add_action( 'admin_menu', array(
-			__CLASS__,
-			'admin_menu'
-		) );
-		add_action( 'admin_init', array(
-			__CLASS__,
-			'admin_init'
-		) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
 	}
 
 	/**
@@ -34,10 +28,7 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public static function admin_menu( ) {
-		add_options_page( __( 'Bea Send', 'bea_s' ), __( 'Bea Send', 'bea_s' ), 'manage_options', 'bea_s-settings', array(
-			__CLASS__,
-			'render_page_settings'
-		) );
+		add_options_page( __( 'Bea Send', 'bea_s' ), __( 'Bea Send', 'bea_s' ), 'manage_options', 'bea_s-settings', array( __CLASS__, 'render_page_settings' ) );
 	}
 
 	/**
@@ -49,7 +40,11 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public static function render_page_settings( ) {
-		include (BEA_SENDER_DIR.'/templates/admin-option-page.php');
+		if( is_file( BEA_SENDER_DIR.'/templates/admin-option-page.php' ) ) {
+			include ( BEA_SENDER_DIR.'/templates/admin-option-page.php' );
+		} else {
+			_e( 'Missing template', 'bea-send' );
+		}
 	}
 
 	/**
