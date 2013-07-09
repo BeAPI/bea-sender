@@ -1,0 +1,281 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: BEA sender\n"
+"POT-Creation-Date: 2013-07-09 12:48+0100\n"
+"PO-Revision-Date: 2013-07-09 12:48+0100\n"
+"Last-Translator: Nicolas Juen <njuen@beapi.fr>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e;esc_html__;esc_html_e;"
+"esc_attr__;esc_attr_e;_n;_x;_ex;esc_attr_x;esc_html_x;_nx;_n_noop;_nx_noop\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../inc/class.admin.php:35
+msgid "BEA Send"
+msgstr ""
+
+#: ../inc/class.admin.php:68
+msgid "Campaigns"
+msgstr ""
+
+#: ../inc/class.admin.php:101
+msgid "Internal error"
+msgstr ""
+
+#: ../inc/class.admin.php:103
+msgid "No results"
+msgstr ""
+
+#: ../inc/class.admin.php:106
+#, php-format
+msgid "%d lines deleted"
+msgstr ""
+
+#: ../inc/class.client.php:94
+msgid "In progress"
+msgstr ""
+
+#: ../inc/class.client.php:95
+msgid "Registered"
+msgstr ""
+
+#: ../inc/class.client.php:96
+msgid "Done"
+msgstr ""
+
+#: ../inc/class.client.php:97
+msgid "Sent"
+msgstr ""
+
+#: ../inc/class.client.php:98
+msgid "Pending"
+msgstr ""
+
+#: ../inc/class.client.php:99
+msgid "Valid"
+msgstr ""
+
+#: ../inc/class.client.php:100
+msgid "Bounced"
+msgstr ""
+
+#: ../inc/class.client.php:101
+msgid "Failed"
+msgstr ""
+
+#: ../inc/class.client.php:102
+msgid "Invalid"
+msgstr ""
+
+#: ../inc/libs/wordpress-settings-api/class.settings-api.php:347
+msgid "Browse"
+msgstr ""
+
+#: ../inc/libs/wordpress-settings-api/class.settings-api.php:501
+msgid "No section available"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:31 ../templates/admin-table.php:9
+msgid "Bea Send"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:46
+msgid "Missing template"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:70
+msgid "General"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:71
+msgid "Server settings"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:86
+msgid "Mailhost:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:87
+msgid "Your mail server."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:93
+msgid "Mailbox Username:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:94
+msgid "Your mailbox username."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:100
+msgid "Mailbox Password:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:101
+msgid "Your mailbox password"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:107
+msgid "Port:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:108
+msgid "The port to access your mailbox, default is 143."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:114
+msgid "Service:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:115
+msgid "The service to use (imap or pop3), default is imap."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:121
+msgid "Service Option:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:122
+msgid "The service options (none, tls, notls, ssl, etc.), default is notls."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:128
+msgid "Boxname:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:129
+msgid "The mailbox to access, default is INBOX."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:135
+msgid "Move Hard:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:136
+#: ../inc/utils/class.admin.bounce.tools.php:150
+msgid "Default is false."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:142
+msgid "Hard Mail Box:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:143
+msgid "Default is INBOX.hard - NOTE: must start with INBOX."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:149
+msgid "Move Soft:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:156
+msgid "Soft Mail Box:"
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:157
+msgid "Default is INBOX.soft - NOTE: must start with INBOX."
+msgstr ""
+
+#: ../inc/utils/class.admin.bounce.tools.php:173
+msgid "Select a page"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:42
+msgid "No campaigns found."
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:48
+#: ../inc/utils/class.admin.table.single.php:20
+#, php-format
+msgid "<a href=\"%s\" class=\"%s\" >All</a>"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:141
+#: ../inc/utils/class.admin.table.single.php:91
+msgid "ID"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:142
+msgid "Status"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:143
+msgid "Date added"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:144
+msgid "Scheduled from"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:145
+msgid "From"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:146
+msgid "From name"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:147
+msgid "Subject"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:148
+msgid "Emails to send"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:286
+msgid "Delete"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.php:302
+msgid "Oups! You probably forgot to tick campaigns to delete?"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:47
+msgid "No sender found."
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:92
+msgid "Email"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:93
+msgid "Sender status"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:94
+msgid "Sender campaign status"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:95
+msgid "Bounce cat"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:96
+msgid "Bounce type"
+msgstr ""
+
+#: ../inc/utils/class.admin.table.single.php:97
+msgid "Bounce number"
+msgstr ""
+
+#: ../templates/admin-campaign-single.php:15
+msgid "Bea Send - Campaign"
+msgstr ""
+
+#: ../templates/admin-campaign-single.php:15
+msgid "Return to campaigns"
+msgstr ""
+
+#: ../templates/admin-option-page.php:4
+msgid "Bea Send - Settings"
+msgstr ""
+
+#: ../templates/admin-table.php:10
+msgid "Export to CSV"
+msgstr ""
