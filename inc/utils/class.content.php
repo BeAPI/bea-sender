@@ -38,4 +38,11 @@ Class Bea_Sender_Content{
 		$this->id =  $inserted!== false ? $wpdb->insert_id : 0;
 		return $this->id;
 	}
+
+	public function get_html() {
+		return $this->content_html;
+	}
+	public function get_text() {
+		return $this->content_text;
+	}
 }

@@ -48,8 +48,16 @@ class Bea_Sender_Client {
 			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			`email` varchar(255) NOT NULL,
 			`current_status` varchar(10) NOT NULL,
+                        `bounce_cat` varchar(20) NOT NULL,
+                        `bounce_type` varchar(20) NOT NULL,
+                        `bounce_no` varchar(10) NOT NULL,
 			UNIQUE ( email )
 		) $charset_collate;" );
+                
+                maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_cat char(20)" );
+                maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_type char(20)" );
+                maybe_add_column( $wpdb->bea_s_receivers, '', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_no char(10)" );
+                
 		add_clean_index( $wpdb->bea_s_receivers, 'email' );
 		add_clean_index( $wpdb->bea_s_receivers, 'current_status' );
 		
