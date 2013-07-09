@@ -28,7 +28,7 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public static function admin_menu( ) {
-		add_options_page( __( 'Bea Send', 'bea_sender' ), __( 'Bea Send', 'bea_sender' ), 'manage_options', 'bea_s-settings', array( __CLASS__, 'render_page_settings' ) );
+		add_options_page( __( 'BEA Send', 'bea_sender' ), __( 'BEA Send', 'bea_sender' ), 'manage_options', 'bea_s-settings', array( __CLASS__, 'render_page_settings' ) );
 	}
 
 	/**
