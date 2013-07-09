@@ -27,6 +27,7 @@ define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
 define( 'BEA_SENDER_VER', '1.1' );
 define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
+define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
 
 // Utils
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.email.php');
@@ -58,6 +59,7 @@ require (BEA_SENDER_DIR.'/inc/libs/php-bounce/class.phpmailer-bmh.php');
 
 // Create tables on activation
 register_activation_hook( __FILE__, array( 'Bea_Sender_Client', 'activation' ) );
+register_uninstall_hook( __FILE__, array( 'Bea_Sender_Client', 'uninstall' ) );
 
 add_action( 'plugins_loaded', 'Bea_sender_init' );
 

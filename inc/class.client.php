@@ -4,13 +4,33 @@ class Bea_Sender_Client {
 	function __construct( ) {
 		add_action( 'init', array( __CLASS__, 'init' ) );
 	}
-
+	
+	/**
+	 * Add given data to the campaign
+	 * 
+	 * @param (array)$data_campaign : the campaign datas
+	 * @param (array)$data : the emails to do
+	 * @param (string)$content_html : the html content to use
+	 * @param (string)$content_text : (optional) the raw content to use on this emailing
+	 * 
+	 * @return boolean
+	 * 
+	 * @author Nicolas Juen
+	 * 
+	 */
 	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '' ) {
 		$campaign = new Bea_Sender_Campaign( );
 		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text );
 		return $insert;
 	}
 	
+	/**
+	 * Load the translation
+	 * 
+	 * @param void
+	 * @return void
+	 * @author Nicolas Juen
+	 */
 	public static function init() {
 		load_plugin_textdomain( 'bea_sender', false, basename( BEA_SENDER_DIR ) . '/languages' );
 	}
@@ -89,7 +109,44 @@ class Bea_Sender_Client {
 		) $charset_collate;" );
 		add_clean_index( $wpdb->bea_s_contents, 'id' );
 	}
-
+	
+	/**
+	 * When uninstall the plugin
+	 * Delete option and tables
+	 * 
+	 * @param void
+	 * @return void
+	 * @author Nicolas Juen
+	 * 
+	 */
+	public static function uninstall() {
+		global $wpdb;
+		
+		// Security
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+		
+		check_admin_referer( 'bulk-plugins' );
+		
+		// Drop the tables
+		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_campaigns");
+		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_receivers");
+		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_re_ca");
+		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_contents");
+		
+		// Remove the options
+		delete_option( BEA_SENDER_OPTION_NAME );
+	}
+	
+	/**
+	 * Get a status given all available
+	 * 
+	 * @param (string)$slug : the status slug
+	 * @return (sting): translated string
+	 * @author Nicolas Juen
+	 * 
+	 */
 	public static function getStatus( $slug ) {
 		$statuses = array(
 			'progress' => __( 'In progress', 'bea_sender' ),

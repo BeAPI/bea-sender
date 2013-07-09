@@ -43,7 +43,7 @@ class BEA_Admin_Settings_Main {
 		if( is_file( BEA_SENDER_DIR.'/templates/admin-option-page.php' ) ) {
 			include ( BEA_SENDER_DIR.'/templates/admin-option-page.php' );
 		} else {
-			_e( 'Missing template', 'bea-send' );
+			_e( 'Missing template', 'bea_sender' );
 		}
 	}
 
@@ -66,7 +66,7 @@ class BEA_Admin_Settings_Main {
 
 	public static function get_settings_sections( ) {
 		$sections = array( array(
-				'id' => 'bea_s-main',
+				'id' => BEA_SENDER_OPTION_NAME,
 				'tab_label' => __( 'General', 'bea_sender' ),
 				'title' => __( 'Server settings', 'bea_sender' ),
 				'desc' => false,
@@ -80,7 +80,7 @@ class BEA_Admin_Settings_Main {
 	 * @return array settings fields
 	 */
 	public static function get_settings_fields( ) {
-		$settings_fields = array( 'bea_s-main' => array(
+		$settings_fields = array( BEA_SENDER_OPTION_NAME => array(
 				array(
 					'name' => 'mailhost',
 					'label' => __( 'Mailhost:', 'bea_sender' ),
@@ -164,23 +164,6 @@ class BEA_Admin_Settings_Main {
 	}
 
 	/**
-	 * Get all the pages
-	 *
-	 * @return array page names with key value pairs
-	 */
-	private static function _get_pages( ) {
-		$pages = get_pages( );
-		$pages_options = array( 0 => __( 'Select a page', 'bea_sender' ) );
-		if( $pages ) {
-			foreach( $pages as $page ) {
-				$pages_options[$page->ID] = $page->post_title;
-			}
-		}
-
-		return $pages_options;
-	}
-
-	/**
 	 * TODO: Keep logic
 	 *
 	 * @param mixed $input Description.
@@ -205,11 +188,6 @@ class BEA_Admin_Settings_Main {
 			} else {
 				$output[$key] = 0;
 			}
-		}
-
-		// Constraint & Signon
-		if( (int)$output['allow-signon-email'] == 1 ) {
-			$output['unique-email'] = 1;
 		}
 
 		// Return the array processing any additional functions filtered by this action
