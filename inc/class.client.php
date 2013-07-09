@@ -94,6 +94,7 @@ class Bea_Sender_Client {
 			'valid' => __( 'Valid', 'bea_sender' ),
 			'bounced' => __( 'Bounced', 'bea_sender' ),
 			'failed' => __( 'Failed', 'bea_sender' ),
+			'invalid' => __( 'Invalid', 'bea_sender' ),
 		);
 		return isset( $statuses[$slug] ) ? $statuses[$slug] : $slug;
 	}

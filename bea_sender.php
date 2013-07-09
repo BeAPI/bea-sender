@@ -38,6 +38,7 @@ if( is_admin( ) ) {
 		require (ABSPATH.'/wp-admin/includes/class-wp-list-table.php');
 	}
 	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.php');
+	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.single.php');
 	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.bounce.tools.php');
 
 }

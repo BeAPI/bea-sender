@@ -1,6 +1,7 @@
 <?php
 class Bea_Sender_Admin {
 	private $ListTable = null;
+	private $ListTableSingle = null;
 	private $campaign_table = null;
 	
 	/** 
@@ -33,6 +34,7 @@ class Bea_Sender_Admin {
 	 */
 	function init_table() {
 		$this->ListTable = new Bea_Sender_Admin_Table();
+		$this->ListTableSingle = new Bea_Sender_Admin_Table_Single();
 	}
 	
 	/**
@@ -121,6 +123,7 @@ class Bea_Sender_Admin {
 		} else {
 			$file = BEA_SENDER_DIR.'/templates/admin-campaign-single.php';
 		}
+		
 		if( !is_file( $file ) ) {
 			return false;
 		} else {

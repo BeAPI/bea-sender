@@ -409,21 +409,38 @@ class Bea_Sender_Campaign {
 	}
 
 	/**
-	 *
-	 *
+	 * Getthe campaign receivers
+	 * 
+	 * @param (array)$where : the where query to add
+	 * @param (array)$orderby : the where query to add
 	 * @return Bea_Sender_Receiver objects
 	 *
 	 */
-	public function get_receivers( ) {
+	public function get_receivers( $where = '', $orderby = '', $limit = '' ) {
 		global $wpdb;
-
+		
+		// Escape the given data
+		$where = $wpdb->escape( $where );
+		$orderby = $wpdb->escape( $orderby );
+		$limit = $wpdb->escape( $limit );
+	
 		$receivers = $wpdb->get_results( $wpdb->prepare( "SELECT 
-				*
+				r.id,
+				r.current_status,
+				r.email,
+				r.bounce_cat,
+				r.bounce_type,
+				r.bounce_no,
+				reca.current_status
 			FROM $wpdb->bea_s_re_ca AS reca
-				JOIN $wpdb->bea_s_receivers AS r ON r.id = reca.id_receiver
+				JOIN $wpdb->bea_s_receivers AS r 
+				ON r.id = reca.id_receiver
 			WHERE
 				1=1
 				AND reca.id_campaign = %d
+				$where
+				$orderby
+				$limit
 			", $this->id ) );
 
 		foreach( $receivers as $receiver ) {
