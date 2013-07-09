@@ -4,7 +4,9 @@
  Plugin Name: BeApi - Sender
  Description: Register email campaigns and send them trough a CRON
  Author: BeApi
- Version: 1.0
+ Domain Path: /languages/
+ Text Domain: bea_sender
+ Version: 1.1
  */
 
 // Database declarations
@@ -20,9 +22,9 @@ $wpdb->tables[] = 'bea_s_receivers';
 $wpdb->tables[] = 'bea_s_re_ca';
 $wpdb->tables[] = 'bea_s_contents';
 
-define( 'BEA_SENDER_URL', plugins_url( '', __FILE__ ) );
-define( 'BEA_SENDER_DIR', dirname( __FILE__ ) );
-define( 'BEA_SENDER_VER', '1.0' );
+define('BEA_SENDER_URL', plugin_dir_url ( __FILE__ ));
+define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
+define( 'BEA_SENDER_VER', '1.1' );
 define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 
@@ -33,19 +35,24 @@ require (BEA_SENDER_DIR.'/inc/utils/'.'class.content.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.receiver.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.sender.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.bounce.email.php');
+
+// Admin
 if( is_admin( ) ) {
+	// Admin basic
+	require (BEA_SENDER_DIR.'/inc/class.admin.php');
+	
 	if( !class_exists( 'WP_List_Table' ) ) {
 		require (ABSPATH.'/wp-admin/includes/class-wp-list-table.php');
 	}
 	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.php');
 	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.single.php');
 	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.bounce.tools.php');
-
 }
 
 // Inc
 require (BEA_SENDER_DIR.'/inc/class.client.php');
-require (BEA_SENDER_DIR.'/inc/class.admin.php');
+
+// Libs
 require (BEA_SENDER_DIR.'/inc/libs/wordpress-settings-api/class.settings-api.php');
 require (BEA_SENDER_DIR.'/inc/libs/php-bounce/class.phpmailer-bmh.php');
 

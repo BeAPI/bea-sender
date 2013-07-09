@@ -2,12 +2,17 @@
 class Bea_Sender_Client {
 
 	function __construct( ) {
+		add_action( 'init', array( __CLASS__, 'init' ) );
 	}
 
 	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '' ) {
 		$campaign = new Bea_Sender_Campaign( );
 		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text );
 		return $insert;
+	}
+	
+	public static function init() {
+		load_plugin_textdomain( 'bea_sender', false, basename( BEA_SENDER_DIR ) . '/languages' );
 	}
 
 	/**
@@ -49,9 +54,9 @@ class Bea_Sender_Client {
 			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			`email` varchar(255) NOT NULL,
 			`current_status` varchar(10) NOT NULL,
-                        `bounce_cat` varchar(20) NOT NULL,
-                        `bounce_type` varchar(20) NOT NULL,
-                        `bounce_no` varchar(10) NOT NULL,
+			`bounce_cat` varchar(20) NOT NULL,
+			`bounce_type` varchar(20) NOT NULL,
+			`bounce_no` varchar(10) NOT NULL,
 			UNIQUE ( email )
 		) $charset_collate;" );
 
