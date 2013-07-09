@@ -11,12 +11,19 @@ class Bea_Sender_Admin {
 	 * @author Amaury Balmer
 	 */
 	public function __construct() {
+		// Add the menu page
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ) );
-		add_action( 'load-tools_page_'.'bea_sender', array( __CLASS__, 'addOptionScreen' ) );
-		add_filter( 'set-screen-option', array( __CLASS__, 'setOptions' ), 1, 3 );
 		add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
-		add_action( 'load-tools_page_bea_sender', array( &$this, 'init_table' ) );
+		
+		// Init the WP_List_Table
+		add_action( 'load-tools_page_'.'bea_sender', array( &$this, 'init_table' ), 2 );
+		
+		// Screen options
+		add_filter( 'set-screen-option', array( __CLASS__, 'set_options' ), 1, 3 );
+		add_action( 'load-tools_page_'.'bea_sender', array( __CLASS__, 'add_option_screen' ), 1 );
+		
+		// CSV generation
+		add_action( 'admin_init', array( __CLASS__, 'generate_csv' ) );
 	}
 	
 	/**
@@ -26,7 +33,9 @@ class Bea_Sender_Admin {
 	 * @author Amaury Balmer
 	 */
 	public function admin_menu() {
-		add_management_page( __( 'BEA Send','bea_sender' ), __( 'BEA Send','bea_sender' ), 'manage_options', 'bea_sender', array( &$this, 'pageManage' ) );
+		$hook = add_management_page( __( 'BEA Send','bea_sender' ), __( 'BEA Send','bea_sender' ), 'manage_options', 'bea_sender', array( &$this, 'pageManage' ) );
+		
+		add_action( 'load-'.$hook, array( __CLASS__, 'admin_enqueue_scripts' ) );
 	}
 	
 	/**
@@ -38,33 +47,14 @@ class Bea_Sender_Admin {
 	}
 	
 	/**
-	 * Instanciate custom WP List table after current_screen defined
-	 */
-	function init_campaign_table() {
-		//$this->campaign_table = new Bea_Sender_Admin_Campaign_Table();
-	}
-	
-	/**
 	 * Load JavaScript in admin
 	 *
 	 * @return void
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
-	public static function admin_enqueue_scripts( $hook ) {
-		if( $hook == 'settings_page_bea_sender' ) {
-			
-			// Enqueue main script
-			wp_enqueue_script ( 'admin-populate', BEA_SENDER_URL.'/ressources/js/admin-populate.js', array( 'jquery' ), BEA_SENDER_VER, true );
-			wp_localize_script( 'admin-populate', 'umL10n ', array(
-				'confirm' => __( 'Are you sure you want to flush the table?', 'bea_sender' ),
-				'ppp' => (int) BEA_SENDER_PPP,
-				'end_processus_message' => __( 'End of process', 'bea_sender' ),
-				'start_processus_message' => __( 'Start of process', 'bea_sender' ),
-				'ppp_valid_message' => __( 'You need PPP valid to make working this script', 'bea_sender' ),
-				'processing_message' => __( 'Processing of ', 'bea_sender' )
-			) );
-			
-		}
+	public static function admin_enqueue_scripts() {
+		// enqueue tghe admin styles
+		wp_enqueue_style( 'bea-send_table', BEA_SENDER_URL.'/assets/css/admin.css' );
 	}
 	
 	/**
@@ -73,7 +63,7 @@ class Bea_Sender_Admin {
 	 * @return void
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
-	public static function addOptionScreen() {
+	public static function add_option_screen() {
 		$option = 'per_page';
 			$args = array(
 				'label' => __( 'Campaigns', 'bea_sender' ),
@@ -89,7 +79,7 @@ class Bea_Sender_Admin {
 	 * @return integer $value or string $value
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
-	public static function setOptions( $status, $option, $value ) {
+	public static function set_options( $status, $option, $value ) {
 		// Get Post Per Page value in Option Screen
 		if ( 'bea_s_per_page' == $option ) {
 			return (int)$value;
@@ -149,5 +139,61 @@ class Bea_Sender_Admin {
 			echo '.wp-list-table .column-path { width: 55%; }';
 		echo '</style>';
 		return true;
+	}
+
+	/**
+	 * Export bea_s_receivers table in CSV
+	 *
+	 *
+	 * @author Salah Khouildi
+	 */
+	public static function generate_csv( ) {
+
+		if( !isset( $_GET['bea_s-export'] ) ) {
+			return false;
+		}
+		
+		check_admin_referer( 'bea-sender-export' );
+		
+		global $wpdb;
+
+		$header_titles = array(
+			'Id',
+			'Email',
+			'Current status',
+			'Bounce cat',
+			'Bounce type',
+			'Bounce no'
+		);
+
+		$contacts = $wpdb->get_results( "SELECT * FROM $wpdb->bea_s_receivers" );
+		foreach( $contacts as $contact ) {
+			$list[] = array(
+				$contact->id,
+				$contact->email,
+				$contact->current_status,
+				$contact->bounce_cat,
+				$contact->bounce_type,
+				$contact->bounce_no
+			);
+		}
+
+		header( "Pragma: public" );
+		header( "Expires: 0" );
+		header( "Cache-Control: private" );
+		header( "Content-type: text/csv" );
+		header( "Content-Disposition: attachment; filename=bea-send-".date( 'd-m-y' ).".csv" );
+		header( "Accept-Ranges: bytes" );
+
+		$outstream = fopen( "php://output", 'w' );
+		//Put header titles
+		fputcsv( $outstream, array_map( 'utf8_decode', $header_titles ), ';' );
+		// Put lines in csv file
+		foreach( $list as $fields ) {
+			fputcsv( $outstream, array_map( 'utf8_decode', $fields ), ';' );
+		}
+
+		fclose( $outstream );
+		die( );
 	}
 }
