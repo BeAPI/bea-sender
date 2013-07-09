@@ -13,7 +13,6 @@ class Bea_Sender_Admin {
 	public function __construct() {
 		// Add the menu page
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
-		add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
 		
 		// Init the WP_List_Table
 		add_action( 'load-tools_page_'.'bea_sender', array( &$this, 'init_table' ), 2 );
@@ -119,25 +118,6 @@ class Bea_Sender_Admin {
 		} else {
 			include( $file );
 		}
-		return true;
-	}
-	/**
-	 *  This method manage css for table
-	 *
-	 * @return string <style css>
-	 * @author Amaury Balmer, Alexandre Sadowski
-	 */
-	public static function admin_head() {
-		$page = ( isset($_GET['page'] ) ) ? esc_attr( $_GET['page'] ) : false;
-		if( 'bea_sender' != $page )
-			return false;
-		 
-		echo '<style type="text/css">';
-			echo '.wp-list-table .column-id { width: 10%; }';
-			echo '.wp-list-table .column-status { width: 5%; }';
-			echo '.wp-list-table .column-post_id { width: 30%; }';
-			echo '.wp-list-table .column-path { width: 55%; }';
-		echo '</style>';
 		return true;
 	}
 
