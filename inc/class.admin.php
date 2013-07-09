@@ -107,12 +107,10 @@ class Bea_Sender_Admin {
 			}
 		}
 		
-		if( !isset( $_GET['c_id'] ) ) {
-			$file = BEA_SENDER_DIR.'/templates/admin-table.php';
-		} else {
-			$file = BEA_SENDER_DIR.'/templates/admin-campaign-single.php';
-		}
-		
+		// Include right file
+		$file = !isset( $_GET['c_id'] ) ? BEA_SENDER_DIR.'/templates/admin-table.php' : BEA_SENDER_DIR.'/templates/admin-campaign-single.php';
+
+		// Check the file
 		if( !is_file( $file ) ) {
 			return false;
 		} else {
