@@ -27,7 +27,7 @@ define('BEA_SENDER_URL', plugin_dir_url ( __FILE__ ));
 define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
 define( 'BEA_SENDER_VER', '1.2' );
 define( 'BEA_SENDER_PPP', '10' );
-define( 'BEA_SENDER_DEFAULT_COUNTER', 1 );
+define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
 
 // Utils
