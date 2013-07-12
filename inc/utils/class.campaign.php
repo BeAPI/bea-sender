@@ -9,6 +9,7 @@ class Bea_Sender_Campaign {
 	private $from_name = '';
 	private $from = '';
 	private $subject = '';
+	private $attachments = array();
 
 	// Data for sending
 	private $emailContents = array( );
@@ -117,7 +118,7 @@ class Bea_Sender_Campaign {
 		if( !isset( $this->id ) || empty( $this->id ) || !$this->is_data ) {
 			return false;
 		}
-
+		$this->attachments = $this->get_attachments( );
 		return $this->emailContents = $this->getEmailsContents( );
 	}
 
@@ -125,6 +126,10 @@ class Bea_Sender_Campaign {
 		global $bea_send_counter;
 		$counter = 0;
 		$failed = array( );
+
+		// Put the filters for the from name and the from
+		$this->addSendFilters( );
+
 		foreach( $this->emailContents as $send ) {
 			if( $bea_send_counter <= 0 ) {
 				return array(
@@ -136,17 +141,12 @@ class Bea_Sender_Campaign {
 
 			$counter++;
 
-			// Put the filters for the from name and the from
-			$this->addSendFilters( );
-
 			// Mail trough the email class accepting the raw format
 			$mailed = Bea_Sender_Email::wpMail( $send->email, $this->subject, array(
 				'html' => self::contentReplace( $send->html, $send->email ),
 				'raw' => self::contentReplace( $send->text, $send->email )
-			), array( 'campaign-id: '.$this->id."\n" ) );
+			), array( 'campaign-id: '.$this->id."\n" ), $this->attachments );
 
-			// Remove the filters
-			$this->removeSendFilters( );
 			if( !$mailed ) {
 				$failed[] = $send->email;
 				$this->changeRecaStatus( $send->reca_id, 'failed' );
@@ -161,6 +161,9 @@ class Bea_Sender_Campaign {
 		} else {
 			$this->changeStatus( 'progress' );
 		}
+
+		// Remove the filters
+		$this->removeSendFilters( );
 
 		return array(
 			$failed,
@@ -195,7 +198,21 @@ class Bea_Sender_Campaign {
 		return !isset( $emails ) || empty( $emails ) ? array( ) : $emails;
 	}
 
-	public function add( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '' ) {
+	private function get_attachments( ) {
+		global $wpdb;
+
+		$attachments = $wpdb->get_col( $wpdb->prepare( "SELECT
+				path
+			FROM $wpdb->bea_s_attachments 
+			WHERE
+				1=1
+				AND campaign_id = %d
+			", $this->id ) );
+
+		return !isset( $attachments ) || empty( $attachments ) ? array( ) : $attachments;
+	}
+
+	public function add( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '', $attachments = array() ) {
 
 		// Add a campaign
 		$ca_id = $this->createCampaign( $data_campaign );
@@ -218,6 +235,20 @@ class Bea_Sender_Campaign {
 			}
 		}
 
+		// Handle the attachments
+		if( isset( $attachments ) && is_array( $attachments ) && !empty( $attachments ) ) {
+			foreach( $attachments as $attachment ) {
+
+				// Make an attachment
+				$att = new Bea_Sender_Attachment( $attachment );
+
+				// Check the attachment
+				if( $att->create( ) !== false ) {
+					$this->add_attachment( $att );
+				}
+			}
+		}
+
 		// Return the addReceveivers data
 		return $this->addReceivers( $data, $c_id );
 	}
@@ -232,12 +263,12 @@ class Bea_Sender_Campaign {
 		if( !isset( $data['from'] ) || !is_email( $data['from'] ) ) {
 			// Get the options
 			$options = get_option( 'bea_s-main' );
-			
+
 			// If there is an adresse given, then use it
 			if( !isset( $options['mailbox_username'] ) || !is_email( $options['mailbox_username'] ) ) {
 				return false;
 			}
-			
+
 			$data['from'] = $options['mailbox_username'];
 		}
 
@@ -418,7 +449,7 @@ class Bea_Sender_Campaign {
 
 	/**
 	 * Getthe campaign receivers
-	 * 
+	 *
 	 * @param (array)$where : the where query to add
 	 * @param (array)$orderby : the where query to add
 	 * @return Bea_Sender_Receiver objects
@@ -426,12 +457,12 @@ class Bea_Sender_Campaign {
 	 */
 	public function get_receivers( $where = '', $orderby = '', $limit = '' ) {
 		global $wpdb;
-		
+
 		// Escape the given data
 		$where = $wpdb->escape( $where );
 		$orderby = $wpdb->escape( $orderby );
 		$limit = $wpdb->escape( $limit );
-	
+
 		$receivers = $wpdb->get_results( $wpdb->prepare( "SELECT 
 				r.id,
 				r.current_status,
@@ -461,24 +492,24 @@ class Bea_Sender_Campaign {
 
 		return $this->receivers;
 	}
-	
+
 	/**
 	 * Get the campaign total receivers
-	 * 
+	 *
 	 * @param (array)$where : the where query to add
 	 * @param (array)$orderby : the where query to add
 	 * @return Bea_Sender_Receiver objects
 	 *
 	 */
-	 
+
 	public function get_total_receivers( $where = '', $orderby = '', $limit = '' ) {
 		global $wpdb;
-		
+
 		// Escape the given data
 		$where = $wpdb->escape( $where );
 		$orderby = $wpdb->escape( $orderby );
 		$limit = $wpdb->escape( $limit );
-	
+
 		$receivers = $wpdb->get_var( $wpdb->prepare( "SELECT 
 				COUNT( r.id )
 			FROM $wpdb->bea_s_re_ca AS reca
@@ -491,7 +522,12 @@ class Bea_Sender_Campaign {
 				$orderby
 				$limit
 			", $this->id ) );
-			
+
 		return (int)$receivers;
 	}
+
+	private function add_attachment( Bea_Sender_Attachment $attachment ) {
+		return $attachment->link_campaign( $this );
+	}
+
 }

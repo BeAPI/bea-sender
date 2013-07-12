@@ -6,7 +6,7 @@
  Author: BeApi
  Domain Path: /languages/
  Text Domain: bea_sender
- Version: 1.1.2
+ Version: 1.2
  */
 
 // Database declarations
@@ -15,6 +15,7 @@ $wpdb->bea_s_campaigns = $wpdb->prefix.'bea_s_campaigns';
 $wpdb->bea_s_receivers = $wpdb->prefix.'bea_s_receivers';
 $wpdb->bea_s_re_ca = $wpdb->prefix.'bea_s_re_ca';
 $wpdb->bea_s_contents = $wpdb->prefix.'bea_s_contents';
+$wpdb->bea_s_attachments = $wpdb->prefix.'bea_s_attachments';
 
 // Add tables to the index of tables for WordPress
 $wpdb->tables[] = 'bea_s_campaigns';
@@ -24,15 +25,16 @@ $wpdb->tables[] = 'bea_s_contents';
 
 define('BEA_SENDER_URL', plugin_dir_url ( __FILE__ ));
 define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
-define( 'BEA_SENDER_VER', '1.1.2' );
+define( 'BEA_SENDER_VER', '1.2' );
 define( 'BEA_SENDER_PPP', '10' );
-define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
+define( 'BEA_SENDER_DEFAULT_COUNTER', 1 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
 
 // Utils
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.email.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.campaign.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.content.php');
+require (BEA_SENDER_DIR.'/inc/utils/'.'class.attachment.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.receiver.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.sender.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.bounce.email.php');

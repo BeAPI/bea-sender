@@ -18,9 +18,9 @@ class Bea_Sender_Client {
 	 * @author Nicolas Juen
 	 * 
 	 */
-	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '' ) {
+	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '', $attachments= array() ) {
 		$campaign = new Bea_Sender_Campaign( );
-		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text );
+		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text, $attachments );
 		return $insert;
 	}
 	
@@ -108,6 +108,15 @@ class Bea_Sender_Client {
 			`text` longtext NOT NULL
 		) $charset_collate;" );
 		add_clean_index( $wpdb->bea_s_contents, 'id' );
+		
+		// Attachment Table
+		maybe_create_table( $wpdb->bea_s_attachments, "CREATE TABLE ".$wpdb->bea_s_attachments." (
+			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`campaign_id` int NOT NULL,
+			`path` longtext NOT NULL
+		) $charset_collate;" );
+		add_clean_index( $wpdb->bea_s_attachments, 'id' );
+		add_clean_index( $wpdb->bea_s_attachments, 'campaign_id' );
 	}
 	
 	/**
