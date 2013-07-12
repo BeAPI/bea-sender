@@ -230,7 +230,15 @@ class Bea_Sender_Campaign {
 		}
 
 		if( !isset( $data['from'] ) || !is_email( $data['from'] ) ) {
-			return false;
+			// Get the options
+			$options = get_option( 'bea_s-main' );
+			
+			// If there is an adresse given, then use it
+			if( !isset( $options['mailbox_username'] ) || !is_email( $options['mailbox_username'] ) ) {
+				return false;
+			}
+			
+			$data['from'] = $options['mailbox_username'];
 		}
 
 		if( !isset( $data['subject'] ) || empty( $data['subject'] ) ) {
