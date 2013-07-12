@@ -461,5 +461,37 @@ class Bea_Sender_Campaign {
 
 		return $this->receivers;
 	}
-
+	
+	/**
+	 * Get the campaign total receivers
+	 * 
+	 * @param (array)$where : the where query to add
+	 * @param (array)$orderby : the where query to add
+	 * @return Bea_Sender_Receiver objects
+	 *
+	 */
+	 
+	public function get_total_receivers( $where = '', $orderby = '', $limit = '' ) {
+		global $wpdb;
+		
+		// Escape the given data
+		$where = $wpdb->escape( $where );
+		$orderby = $wpdb->escape( $orderby );
+		$limit = $wpdb->escape( $limit );
+	
+		$receivers = $wpdb->get_var( $wpdb->prepare( "SELECT 
+				COUNT( r.id )
+			FROM $wpdb->bea_s_re_ca AS reca
+				JOIN $wpdb->bea_s_receivers AS r 
+				ON r.id = reca.id_receiver
+			WHERE
+				1=1
+				AND reca.id_campaign = %d
+				$where
+				$orderby
+				$limit
+			", $this->id ) );
+			
+		return (int)$receivers;
+	}
 }

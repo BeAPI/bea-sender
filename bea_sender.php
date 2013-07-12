@@ -6,7 +6,7 @@
  Author: BeApi
  Domain Path: /languages/
  Text Domain: bea_sender
- Version: 1.1.1
+ Version: 1.1.2
  */
 
 // Database declarations
@@ -24,7 +24,7 @@ $wpdb->tables[] = 'bea_s_contents';
 
 define('BEA_SENDER_URL', plugin_dir_url ( __FILE__ ));
 define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
-define( 'BEA_SENDER_VER', '1.1.1' );
+define( 'BEA_SENDER_VER', '1.1.2' );
 define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );

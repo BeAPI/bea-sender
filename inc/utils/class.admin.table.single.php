@@ -111,8 +111,8 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 		$campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
 
 		// Make the order
-		$limit = $wpdb->prepare( ' LIMIT %d,%d', ($this->get_pagenum( ) == 1 ? 0 : $this->get_pagenum( )), $this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ) );
-
+		$limit = $wpdb->prepare( ' LIMIT %d,%d', ( $this->get_pagenum( ) == 1 ? 0 : $this->get_pagenum( )-1 ) *$this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ), $this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ) );
+		
 		// fitlering by status
 		$filter = self::get_status_filter( );
 		
@@ -136,7 +136,11 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	function totalItems( ) {
 		global $wpdb;
 		$filter = self::get_status_filter( );
-		return (int)$wpdb->get_var( "SELECT COUNT( id ) FROM $wpdb->bea_s_campaigns as c WHERE 1 = 1 $filter" );
+		// Setup the campaign
+		$campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
+		
+		// Get the receivers
+		return $campaign->get_total_receivers( $filter );
 	}
 
 	private static function get_status_filter( ) {
