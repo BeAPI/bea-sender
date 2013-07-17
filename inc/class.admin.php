@@ -135,27 +135,29 @@ class Bea_Sender_Admin {
 		
 		global $wpdb;
 
-		$header_titles = array(
+		$header_titles = apply_filters( 'bea_sender_csv_headers', array(
 			'Id',
 			'Email',
 			'Current status',
 			'Bounce cat',
 			'Bounce type',
 			'Bounce no'
-		);
+		) );
 
-		$contacts = $wpdb->get_results( "SELECT * FROM $wpdb->bea_s_receivers" );
+		$contacts = $wpdb->get_results( "SELECT * FROM $wpdb->bea_s_receivers as r LEFT JOIN $wpdb->bea_s_re_ca AS re ON r.id = re.id_receiver" );
 		foreach( $contacts as $contact ) {
-			$list[] = array(
+			$list[] = apply_filters( 'bea_sender_csv_item', array(
 				$contact->id,
 				$contact->email,
 				$contact->current_status,
 				$contact->bounce_cat,
 				$contact->bounce_type,
 				$contact->bounce_no
-			);
+			), $contact );
 		}
-
+		
+		$list = apply_filters( 'bea_sender_csv_list', $list, $contacts );
+		
 		header( "Pragma: public" );
 		header( "Expires: 0" );
 		header( "Cache-Control: private" );
