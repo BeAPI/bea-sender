@@ -9,7 +9,7 @@ class Bea_Sender_Campaign {
 	private $from_name = '';
 	private $from = '';
 	private $subject = '';
-	private $attachments = array();
+	private $attachments = array( );
 
 	// Data for sending
 	private $emailContents = array( );
@@ -27,6 +27,10 @@ class Bea_Sender_Campaign {
 	function __construct( $id = 0 ) {
 		// Init the object by getting informations from the database
 		return $this->setID( $id );
+	}
+	
+	public function __get( $key_name ) {
+		return $this->$key_name;
 	}
 
 	private function setID( $id = 0 ) {
@@ -103,15 +107,22 @@ class Bea_Sender_Campaign {
 		// Get the reca cols
 		$reca = $wpdb->get_results( $wpdb->prepare( "SELECT id, id_content FROM $wpdb->bea_s_re_ca WHERE id_campaign = %d", $this->id ), OBJECT_K );
 
-		if( !isset( $reca ) || empty( $reca ) ) {
+		// Action for deleted campaign
+		$allow = apply_filters( 'bea_sender_before_campaign_deleted', true );
+
+		if( !isset( $reca ) || empty( $reca ) || $allow === false ) {
 			return 0;
 		}
 
 		$contents = $wpdb->query( "DELETE FROM $wpdb->bea_s_contents WHERE id IN ( ".implode( ', ', array_unique( wp_list_pluck( $reca, 'id_content' ) ) ).")" );
 		$reca = $wpdb->query( "DELETE FROM $wpdb->bea_s_re_ca WHERE id IN ( ".implode( ', ', array_unique( wp_list_pluck( $reca, 'id' ) ) ).")" );
+		$attachments = $wpdb->delete( $wpdb->bea_s_attachments, array( 'campaign_id' => $this->id ), array( '%d' ) );
 		$campaign = $wpdb->delete( $wpdb->bea_s_campaigns, array( 'id' => $this->id ), array( '%d' ) );
 
-		return $contents + $reca + $campaign;
+		// Action for deleted campaign
+		do_action( 'bea_sender_campaign_deleted', $this );
+
+		return $contents + $reca + $campaign + $attachments;
 	}
 
 	private function setupSendingData( ) {
@@ -501,7 +512,6 @@ class Bea_Sender_Campaign {
 	 * @return Bea_Sender_Receiver objects
 	 *
 	 */
-
 	public function get_total_receivers( $where = '', $orderby = '', $limit = '' ) {
 		global $wpdb;
 
@@ -525,9 +535,36 @@ class Bea_Sender_Campaign {
 
 		return (int)$receivers;
 	}
-
+	
+	/**
+	 * Link an attachment to the current campaign
+	 * 
+	 * @param Bea_Sender_Attachment : attahcment object
+	 * @return false|true
+	 * @author Nicolas Juen
+	 * 
+	 */
 	private function add_attachment( Bea_Sender_Attachment $attachment ) {
 		return $attachment->link_campaign( $this );
+	}
+	
+	/**
+	 * Get a status emails counter
+	 * 
+	 * @param (string) : the status to count on
+	 * @return int
+	 * @author Nicolas Juen
+	 * 
+	 */
+	public function get_status_count( $status ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "
+		SELECT 
+			COUNT( reca.id ) as status
+		FROM $wpdb->bea_s_re_ca as reca
+		WHERE 1 = 1 
+		AND reca.current_status = %s
+		AND reca.id_campaign = %d", $status, $this->id ) );
 	}
 
 }
