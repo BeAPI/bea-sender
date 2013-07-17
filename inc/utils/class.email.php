@@ -18,8 +18,6 @@ class Bea_Sender_Email {
 			$phpmailer = new PHPMailer( );
 		}
 
-		$phpmailer->Sender = 'no-reply@fenici.fr';
-
 		// Headers
 		if( empty( $headers ) ) {
 			$headers = array( );
@@ -141,6 +139,7 @@ class Bea_Sender_Email {
 
 		// Plugin authors can override the potentially troublesome default
 		$phpmailer->From = apply_filters( 'wp_mail_from', $from_email );
+		$phpmailer->Sender = apply_filters( 'wp_mail_from', $from_email );
 		$phpmailer->FromName = apply_filters( 'wp_mail_from_name', $from_name );
 
 		// Set destination addresses
@@ -213,7 +212,7 @@ class Bea_Sender_Email {
 		}
 
 		do_action_ref_array( 'phpmailer_init', array( &$phpmailer ) );
-
+		
 		// Send!
 		$result = @$phpmailer->Send( );
 
