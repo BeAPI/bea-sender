@@ -5,10 +5,6 @@ class Bea_Sender_BounceEmail {
 	private $bmh;
 
 	public function __construct( ) {
-		add_action( 'admin_init', array(
-			$this,
-			'bounce_init'
-		), 1 );
 		$this->bmh = new BounceMailHandler( );
 	}
 
@@ -47,6 +43,7 @@ class Bea_Sender_BounceEmail {
 			'callback_action'
 		);
 		$this->bmh->processMailbox( );
+		
 		// Delete flag and do global deletes if true
 		$this->bmh->globalDelete( );
 	}
@@ -74,11 +71,11 @@ class Bea_Sender_BounceEmail {
 	 */
 
 	public function callback_action( $msgnum, $bounce_type, $email, $subject, $xheader, $remove, $rule_no = false, $rule_cat = false, $totalFetched = 0 ) {
-
 		global $wpdb;
+		
 		// The query for update bea_s_receivers table
 		$receiver_result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_receivers WHERE email = %s", $email ) );
-
+		
 		if( $receiver_result ) {
 			$wpdb->update( $wpdb->bea_s_receivers, array(
 				'current_status' => 'invalid',
@@ -98,7 +95,7 @@ class Bea_Sender_BounceEmail {
 		$re_ca__result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_re_ca WHERE id_campaign = %s AND id_receiver = %s", $xheader, $receiver_id ) );
 
 		if( $re_ca__result ) {
-			$wpdb->update( $wpdb->bea_s_re_ca, array( 'current_status' => 'pending' ), array(
+			$wpdb->update( $wpdb->bea_s_re_ca, array( 'current_status' => 'bounced' ), array(
 				'id_campaign' => $xheader,
 				'id_receiver' => $receiver_id
 			), array( '%s' ), array(
