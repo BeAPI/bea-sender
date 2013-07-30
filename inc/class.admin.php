@@ -41,8 +41,11 @@ class Bea_Sender_Admin {
 	 * Instanciate custom WP List table after current_screen defined
 	 */
 	function init_table() {
-		$this->ListTable = new Bea_Sender_Admin_Table();
-		$this->ListTableSingle = new Bea_Sender_Admin_Table_Single();
+		if( !isset( $_GET['c_id'] ) ) {
+			$this->ListTable = new Bea_Sender_Admin_Table();
+		} else {
+			$this->ListTableSingle = new Bea_Sender_Admin_Table_Single();
+		}
 	}
 	
 	/**

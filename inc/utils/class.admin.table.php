@@ -72,35 +72,36 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			case 'from_name' :
 			case 'from' :
 			case 'subject' :
-				return $item[$column_name];
+			case 'email' :
+				$value = $item[$column_name];
 				break;
 			case 'add_date' :
 			case 'scheduled_from' :
-				return mysql2date( 'd/m/Y H:m:i', $item[$column_name] );
+				$value = mysql2date( 'd/m/Y H:m:i', $item[$column_name] );
 				break;
 			case 'todo' :
-				return self::getCampaignTodo( $item['id'] );
+				$value = self::getCampaignTodo( $item['id'] );
 				break;
 			case 'current_status' :
-				return Bea_Sender_Client::getStatus( $item[$column_name] );
+				$value = Bea_Sender_Client::getStatus( $item[$column_name] );
 				break;
 			case 'success' :
-				return self::getCampaignSend( $item['id'] );
+				$value = self::getCampaignSend( $item['id'] );
 				break;
 			case 'failed' :
-				return self::getCampaignFailed( $item['id'] );
+				$value = self::getCampaignFailed( $item['id'] );
 				break;
 			case 'id' :
-				return '<a href="'.add_query_arg( array(
+				$value = '<a href="'.add_query_arg( array(
 					'c_id' => $item[$column_name],
 					'page' => 'bea_sender'
 				), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
 				break;
 			default :
-				return print_r( $item, true );
-				//Show the whole array for troubleshooting purposes
-				break;
+			//Show the whole array for troubleshooting purposes
+			break;
 		}
+		return apply_filters( 'manage_'.$this->screen->id.'_custom_column', $value, $item, $column_name );
 	}
 
 	/**
@@ -245,7 +246,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 */
 	function prepare_items( ) {
 		$this->_column_headers = array(
-			$this->get_columns( ),
+			apply_filters( "manage_{$this->screen->id}_columns", $this->get_columns( ) ),
 			array( ),
 			$this->get_sortable_columns( )
 		);
