@@ -77,7 +77,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 				break;
 			case 'add_date' :
 			case 'scheduled_from' :
-				$value = mysql2date( 'd/m/Y H:m:i', $item[$column_name] );
+				$value = mysql2date( 'd/m/Y H:i:s', $item[$column_name] );
 				break;
 			case 'todo' :
 				$value = self::getCampaignTodo( $item['id'] );
