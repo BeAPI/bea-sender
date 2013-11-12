@@ -3,15 +3,51 @@
 class Bea_Sender_BounceEmail {
 
 	private $bmh;
+	private static $locked = false;
+	private static $lock_file = '/lock-bounce.lock';
 
 	public function __construct( ) {
 		$this->bmh = new BounceMailHandler( );
 	}
 
 	public function bounce_init( ) {
-
-		$host = get_option( 'bea_s-main' );
-
+		
+		// If we are already locked, stop the process
+		if( !self::lock() ) {
+			return false;
+		}
+		
+		// Ge teh user options
+		$options = get_option( 'bea_s-main' );
+		
+		// Make the default data
+		$default = array(
+			'mailhost' => '',
+			'mailbox_username' => '',
+			'mailbox_password' => '',
+			'port' => 143,
+			'service' => 'imap',
+			'service_option' => 'notls',
+			'boxname' => 'INBOX',
+			'movehard' => false,
+			'hardmailbox' => 'INBOX.hard',
+			'movesoft' => false,
+			'softmailbox' => 'INBOX.soft'
+		);
+		
+		// Parse the args
+		$host = wp_parse_args( $options, $default );
+		
+		// Check the basic options
+		if( empty( $host['mailhost'] ) || empty( $host['mailbox_username'] ) || empty( $host['mailbox_password'] ) ) {
+			// Unlock the file
+			self::unlock();
+			
+			return false;
+		}
+	
+		
+		// BHM setup
 		$this->bmh->mailhost = $host['mailhost'];
 		// your mail server
 		$this->bmh->mailbox_username = $host['mailbox_username'];
@@ -46,6 +82,9 @@ class Bea_Sender_BounceEmail {
 		
 		// Delete flag and do global deletes if true
 		$this->bmh->globalDelete( );
+		
+		// Unlock the file
+		self::unlock();
 	}
 
 	/* This is a sample callback function for PHPMailer-BMH (Bounce Mail Handler).
@@ -76,6 +115,7 @@ class Bea_Sender_BounceEmail {
 		// The query for update bea_s_receivers table
 		$receiver_result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_receivers WHERE email = %s", $email ) );
 		
+		// Update the receiver if possible
 		if( $receiver_result ) {
 			$wpdb->update( $wpdb->bea_s_receivers, array(
 				'current_status' => 'invalid',
@@ -106,5 +146,34 @@ class Bea_Sender_BounceEmail {
 
 		return true;
 	}
+
+	public static function is_locked() {
+		return self::$locked;
+	}
+	
+	private static function lock() {
+		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
+			self::$locked = true;
+			return false;
+		}
+		
+		// If we are already locked, stop now
+		if( fopen( BEA_SENDER_DIR.'tools'.self::$lock_file, "x" ) ) {
+			self::$locked = true;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static function unlock() {
+		// Remove the file if needed
+		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
+			unlink( BEA_SENDER_DIR.'tools'.self::$lock_file );
+		}
+		
+		// Unlock the file
+		self::$locked = false;
+	} 
 
 }
