@@ -2,15 +2,21 @@
 class Bea_Sender_Sender {
 
 	private $campaigns = array( );
+	private static $locked = false;
+	private static $lock_file = '/lock-send.lock';
 
-	function __construct( ) {
-	}
+	function __construct( ) {}
 
 	public function init( ) {
-		if( !$this->getCampaigns( ) ) {
+		if( !self::lock() ) {
 			return false;
 		}
-
+		
+		if( !$this->getCampaigns( ) ) {
+			// Unlock the file
+			self::unlock();
+		}
+		
 		return $this->sendCampaigns( );
 	}
 
@@ -38,7 +44,39 @@ class Bea_Sender_Sender {
 			// Make the sending
 			$results[] = $campaign->makeSend( );
 		}
+		
+		// Unlock the file
+		self::unlock();
+		
 		return $results;
 	}
-
+	
+	public static function is_locked() {
+		return self::$locked;
+	}
+	
+	private static function lock() {
+		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
+			self::$locked = true;
+			return false;
+		}
+		
+		// If we are already locked, stop now
+		if( fopen( BEA_SENDER_DIR.'tools'.self::$lock_file, "x" ) ) {
+			self::$locked = true;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static function unlock() {
+		// Remove the file if needed
+		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
+			unlink( BEA_SENDER_DIR.'tools'.self::$lock_file );
+		}
+		
+		// Unlock the file
+		self::$locked = false;
+	} 
 }
