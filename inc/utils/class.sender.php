@@ -56,6 +56,7 @@ class Bea_Sender_Sender {
 	}
 	
 	private static function lock() {
+		clearstatcache();
 		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
 			self::$locked = true;
 			return false;
@@ -71,6 +72,7 @@ class Bea_Sender_Sender {
 	}
 	
 	private static function unlock() {
+		clearstatcache();
 		// Remove the file if needed
 		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
 			unlink( BEA_SENDER_DIR.'tools'.self::$lock_file );
