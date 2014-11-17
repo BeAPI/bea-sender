@@ -597,6 +597,16 @@ function bmhDSNRules( $dsn_msg, $dsn_report, $debug_mode = false ) {
 				}
 				/* rule: full
 				 * sample:
+				 * Diagnostic-Code: X-Postfix; Host or domain name not found. Name service error
+				 *    for name=domain.com type=AAAA: Host not found
+				 */
+                elseif( preg_match( "/Host or domain name not found/is", $diag_code ) ) {
+                    $result['rule_cat'] = 'unknown';
+                    $result['rule_no'] = '0237';
+                    $result['bounce_type'] = '5.4.4';
+                }
+				/* rule: full
+				 * sample:
 				 * Diagnostic-Code: SMTP; 552 Requested mailbox exceeds quota.
 				 */
 				elseif( preg_match( "/exceed.*quota/is", $diag_code ) ) {

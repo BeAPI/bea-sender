@@ -27,7 +27,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			'plural' => 'campaigns', // plural name of the listed records
 			'ajax' => false	// does this table support ajax?
 		) );
-		
+
 		//Check if user wants delete item in row
 		$this->checkDelete( );
 	}
@@ -91,17 +91,28 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			case 'failed' :
 				$value = self::getCampaignFailed( $item['id'] );
 				break;
-			case 'id' :
-				$value = '<a href="'.add_query_arg( array(
-					'c_id' => $item[$column_name],
-					'page' => 'bea_sender'
-				), admin_url( '/tools.php' ) ).'" />'.$item[$column_name].'</a>';
-				break;
 			default :
-			//Show the whole array for troubleshooting purposes
-			break;
+				//Show the whole array for troubleshooting purposes
+				break;
 		}
 		return apply_filters( 'manage_'.$this->screen->id.'_custom_column', $value, $item, $column_name );
+	}
+
+	function column_id( $item ) {
+		
+		$value = '<a href="'.add_query_arg( array(
+			'c_id' => $item['id'],
+			'page' => 'bea_sender'
+		), admin_url( '/tools.php' ) ).'" />'.$item['id'].'</a>';
+
+		$actions = array( 'export' => sprintf( '<a href="%s">Export</a>', add_query_arg( array(
+				'action' => 'bea_export',
+				'c_id' => $item['id'],
+				'page' => 'bea_sender',
+				'nonce' => wp_create_nonce( 'bea-sender-export-'.$item['id'] )
+			), admin_url( '/tools.php' ) ), 'bea_export', $item['id'] ), );
+
+		return sprintf( '%1$s %2$s', $value, $this->row_actions( $actions ) );
 	}
 
 	/**
@@ -340,4 +351,5 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 
 		return true;
 	}
+
 }

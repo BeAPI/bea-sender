@@ -11,12 +11,12 @@ class Bea_Sender_Sender {
 		if( !self::lock() ) {
 			return false;
 		}
-		
+
 		if( !$this->getCampaigns( ) ) {
 			// Unlock the file
 			self::unlock();
 		}
-		
+
 		return $this->sendCampaigns( );
 	}
 
@@ -35,16 +35,22 @@ class Bea_Sender_Sender {
 
 	private function sendCampaigns( ) {
 		$results = array( );
+
+		do_action( 'bea_sender_before_send' );
 		foreach( $this->campaigns as $campaign_id ) {
 			$campaign = new Bea_Sender_Campaign( $campaign_id );
 			if( $campaign->isData( ) !== true ) {
 				continue;
 			}
 
+			do_action( 'bea_sender_before_send_campaign', $campaign_id, $campaign );
 			// Make the sending
 			$results[] = $campaign->makeSend( );
+			do_action( 'bea_sender_after_send_campaign', $campaign_id, $campaign );
+
 		}
-		
+		do_action( 'bea_sender_after_send' );
+
 		// Unlock the file
 		self::unlock();
 		
@@ -56,7 +62,6 @@ class Bea_Sender_Sender {
 	}
 	
 	private static function lock() {
-		clearstatcache();
 		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
 			self::$locked = true;
 			return false;
@@ -72,7 +77,6 @@ class Bea_Sender_Sender {
 	}
 	
 	private static function unlock() {
-		clearstatcache();
 		// Remove the file if needed
 		if( is_file( BEA_SENDER_DIR.'tools'.self::$lock_file ) ) {
 			unlink( BEA_SENDER_DIR.'tools'.self::$lock_file );

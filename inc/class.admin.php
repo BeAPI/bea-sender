@@ -22,7 +22,8 @@ class Bea_Sender_Admin {
 		add_action( 'load-tools_page_'.'bea_sender', array( __CLASS__, 'add_option_screen' ), 1 );
 		
 		// CSV generation
-		add_action( 'admin_init', array( __CLASS__, 'generate_csv' ) );
+		add_action( 'admin_init', array( __CLASS__, 'generate_global_csv' ), 1 );
+		add_action( 'admin_init', array( __CLASS__, 'generate_campaign_csv' ), 2 );
 	}
 	
 	/**
@@ -121,6 +122,17 @@ class Bea_Sender_Admin {
 		}
 		return true;
 	}
+	
+	public static function generate_global_csv() {
+		if( !isset( $_GET['bea_s-export'] ) ) {
+			return false;
+		}
+		
+		check_admin_referer( 'bea-sender-export' );
+		
+		// Generate the csv file
+		self::generate_csv();
+	}
 
 	/**
 	 * Export bea_s_receivers table in CSV
@@ -128,16 +140,8 @@ class Bea_Sender_Admin {
 	 *
 	 * @author Salah Khouildi
 	 */
-	public static function generate_csv( ) {
-
-		if( !isset( $_GET['bea_s-export'] ) ) {
-			return false;
-		}
-		
-		check_admin_referer( 'bea-sender-export' );
-		
+	private static function generate_csv( $campaign_id = 0 ) {
 		global $wpdb;
-
 		$header_titles = apply_filters( 'bea_sender_csv_headers', array(
 			'Id',
 			'Email',
@@ -146,8 +150,46 @@ class Bea_Sender_Admin {
 			'Bounce type',
 			'Bounce no'
 		) );
-
-		$contacts = $wpdb->get_results( "SELECT * FROM $wpdb->bea_s_receivers as r LEFT JOIN $wpdb->bea_s_re_ca AS re ON r.id = re.id_receiver" );
+		
+		if( !isset( $campaign_id ) || (int)$campaign_id <= 0 ) {
+			$contacts = $wpdb->get_results( 
+				"SELECT 
+					r.id, 
+					email, 
+					r.current_status, 
+					bounce_cat, 
+					bounce_type, 
+					bounce_no, 
+					id_campaign, 
+					id_content, 
+					response, 
+					re.current_status as c_current_status 
+				FROM $wpdb->bea_s_receivers as r 
+					LEFT JOIN $wpdb->bea_s_re_ca AS re 
+					ON r.id = re.id_receiver
+				"
+			);
+		} else {
+			$contacts = $wpdb->get_results( 
+			$wpdb->prepare( 
+				"SELECT 
+					r.id, 
+					email, 
+					r.current_status, 
+					bounce_cat, 
+					bounce_type, 
+					bounce_no, 
+					id_campaign, 
+					id_content, 
+					response, 
+					re.current_status as c_current_status 
+				FROM $wpdb->bea_s_receivers as r 
+					LEFT JOIN $wpdb->bea_s_re_ca AS re 
+					ON r.id = re.id_receiver 
+				WHERE re.id_campaign = %d", absint( $_GET['c_id'] ) ) 
+			);
+		}
+		
 		foreach( $contacts as $contact ) {
 			$list[] = apply_filters( 'bea_sender_csv_item', array(
 				$contact->id,
@@ -165,7 +207,13 @@ class Bea_Sender_Admin {
 		header( "Expires: 0" );
 		header( "Cache-Control: private" );
 		header( "Content-type: text/csv" );
-		header( "Content-Disposition: attachment; filename=bea-send-".date( 'd-m-y' ).".csv" );
+		
+		
+		$file_name = "bea-send-".date( 'd-m-y' ).".csv";
+		if( isset( $campaign_id ) && (int)$campaign_id > 0 ) {
+			$file_name = "bea-send-".date( 'd-m-y' )."-campaign-".$_GET['c_id'].".csv";
+		}
+		header( "Content-Disposition: attachment; filename=".$file_name );
 		header( "Accept-Ranges: bytes" );
 
 		$outstream = fopen( "php://output", 'w' );
@@ -178,5 +226,25 @@ class Bea_Sender_Admin {
 
 		fclose( $outstream );
 		die( );
+	}
+
+	/**
+	 * Export bea_s_receivers of the campaign table in CSV
+	 *
+	 *
+	 * @author Salah Khouildi
+	 */
+	public static function generate_campaign_csv( ) {
+
+		if( !isset( $_GET['action'] ) || $_GET['bea_export'] || !isset( $_GET['nonce'] ) || !isset( $_GET['c_id'] ) ) {
+			return false;
+		}
+		
+		if( !wp_verify_nonce( $_GET['nonce'], 'bea-sender-export-'.$_GET['c_id'] ) ) {
+			wp_die( __( 'Are you sure you want to do this ?','bea_sender' ) );
+		}
+		
+		// Generate the csv file
+		self::generate_csv( $_GET['c_id'] );
 	}
 }
