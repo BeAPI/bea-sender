@@ -43,6 +43,7 @@ class Bea_Sender_Client {
 	 * @author Nicolas Juen
 	 */
 	public static function activation( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// Charset
@@ -129,6 +130,7 @@ class Bea_Sender_Client {
 	 * 
 	 */
 	public static function uninstall() {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 		
 		// Security

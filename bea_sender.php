@@ -1,12 +1,11 @@
 <?php
-
 /*
  Plugin Name: BeApi - Sender
  Description: Register email campaigns and send them trough a CRON
  Author: BeApi
  Domain Path: /languages/
  Text Domain: bea_sender
- Version: 1.2.3
+ Version: 1.2.6
  */
 
 // Database declarations
@@ -25,39 +24,64 @@ $wpdb->tables[] = 'bea_s_contents';
 
 define('BEA_SENDER_URL', plugin_dir_url ( __FILE__ ));
 define('BEA_SENDER_DIR', plugin_dir_path( __FILE__ ));
-define( 'BEA_SENDER_VER', '1.2.3' );
+define( 'BEA_SENDER_VER', '1.2.6' );
 define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
+define( 'BEA_SENDER_EXPORT_OPTION_NAME', 'bea_s-export' );
+
+// Function for easy load files
+function _bea_sender_load_files($dir, $files, $prefix = '') {
+	foreach ($files as $file) {
+		if ( is_file($dir . $prefix . $file . ".php") ) {
+			require_once($dir . $prefix . $file . ".php");
+		}
+	}
+}
 
 // Utils
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.email.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.campaign.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.content.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.attachment.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.receiver.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.sender.php');
-require (BEA_SENDER_DIR.'/inc/utils/'.'class.bounce.email.php');
+_bea_sender_load_files( BEA_SENDER_DIR . 'inc/utils/', array(
+	'email',
+	'campaign',
+	'content',
+	'attachment',
+	'receiver',
+	'sender',
+	'bounce.email',
+	'export'
+), 'class.' );
 
 // Admin
 if( is_admin( ) ) {
-	// Admin basic
-	require (BEA_SENDER_DIR.'/inc/class.admin.php');
-	
+
 	if( !class_exists( 'WP_List_Table' ) ) {
 		require (ABSPATH.'/wp-admin/includes/class-wp-list-table.php');
 	}
-	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.php');
-	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.table.single.php');
-	require (BEA_SENDER_DIR.'/inc/utils/'.'class.admin.bounce.tools.php');
+
+	_bea_sender_load_files( BEA_SENDER_DIR . 'inc/', array( 'admin' ), 'class.' );
+	_bea_sender_load_files( BEA_SENDER_DIR . 'inc/utils/', array(
+		'admin.table',
+		'admin.table.single',
+		'admin.bounce.tools'
+	), 'class.' );
+
 }
 
 // Inc
-require (BEA_SENDER_DIR.'/inc/class.client.php');
+_bea_sender_load_files( BEA_SENDER_DIR . 'inc/', array(
+	'client',
+	'cron',
+), 'class.' );
 
 // Libs
-require (BEA_SENDER_DIR.'/inc/libs/wordpress-settings-api/class.settings-api.php');
-require (BEA_SENDER_DIR.'/inc/libs/php-bounce/class.phpmailer-bmh.php');
+_bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/wordpress-settings-api/', array(
+	'settings-api',
+), 'class.' );
+
+_bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/php-bounce/', array(
+	'phpmailer-bmh',
+), 'class.' );
+
 
 // Create tables on activation
 register_activation_hook( __FILE__, array( 'Bea_Sender_Client', 'activation' ) );
@@ -70,6 +94,7 @@ function Bea_sender_init( ) {
 
 	$bea_send_counter = apply_filters( 'bea_send_counter', BEA_SENDER_DEFAULT_COUNTER );
 	$bea_sender['client'] = new Bea_Sender_Client( );
+	new Bea_Sender_Cron();
 
 	if( is_admin( ) ) {
 		$bea_sender['admin'] = new Bea_Sender_Admin( );

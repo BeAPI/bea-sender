@@ -18,7 +18,6 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	/**
 	 * Constructor
 	 *
-	 * @return void
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	public function __construct( ) {
@@ -42,6 +41,10 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		_e( 'No campaigns found.', 'bea_sender' );
 	}
 
+	/**
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	function get_views( ) {
 		$base_url = add_query_arg( array( 'page' => 'bea_sender' ), admin_url( 'tools.php' ) );
 
@@ -52,6 +55,12 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		return $add;
 	}
 
+	/**
+	 * @param $slug
+	 *
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	private static function current_view( $slug ) {
 		if( isset( $_GET['current_status'] ) && $_GET['current_status'] === $slug ) {
 			return 'current';
@@ -68,6 +77,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function column_default( $item, $column_name ) {
+		$value = '';
 		switch( $column_name ) {
 			case 'from_name' :
 			case 'from' :
@@ -91,6 +101,9 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			case 'failed' :
 				$value = self::getCampaignFailed( $item['id'] );
 				break;
+			case 'bounced' :
+				$value = self::getCampaignBounced( $item['id'] );
+				break;
 			default :
 				//Show the whole array for troubleshooting purposes
 				break;
@@ -98,6 +111,12 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		return apply_filters( 'manage_'.$this->screen->id.'_custom_column', $value, $item, $column_name );
 	}
 
+	/**
+	 * @param $item
+	 *
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	function column_id( $item ) {
 		
 		$value = '<a href="'.add_query_arg( array(
@@ -160,6 +179,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 			'todo' => __( 'Emails to send', 'bea_sender' ),
 			'success' => Bea_Sender_Client::getStatus( 'send' ),
 			'failed' => Bea_Sender_Client::getStatus( 'failed' ),
+			'bounced' => Bea_Sender_Client::getStatus( 'bounced' ),
 		);
 	}
 
@@ -170,6 +190,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	function prepareQuery( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// If no sort, default to title
@@ -206,22 +227,55 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		$limit", ARRAY_A );
 	}
 
+	/**
+	 * @param $c_id
+	 *
+	 * @return null|string
+	 * @author Nicolas Juen
+	 */
 	private static function getCampaignTodo( $c_id ) {
-		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'pending' );
 	}
 
+	/**
+	 * @param $c_id
+	 *
+	 * @return null|string
+	 * @author Nicolas Juen
+	 */
 	private static function getCampaignFailed( $c_id ) {
-		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'failed' );
 	}
 
+	/**
+	 * @param $c_id
+	 *
+	 * @return null|string
+	 * @author Nicolas Juen
+	 */
 	private static function getCampaignSend( $c_id ) {
-		global $wpdb;
 		return self::getCampaignStatusCount( $c_id, 'send' );
 	}
 
+	/**
+	 * @param $c_id
+	 *
+	 * @return null|string
+	 * @author Nicolas Juen
+	 */
+	private static function getCampaignBounced( $c_id ) {
+		return self::getCampaignStatusCount( $c_id, 'bounced' );
+	}
+
+	/**
+	 * @param $c_id
+	 * @param $status
+	 *
+	 * @return null|string
+	 * @author Nicolas Juen
+	 */
 	private static function getCampaignStatusCount( $c_id, $status ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 		return $wpdb->get_var( $wpdb->prepare( "
 		SELECT 
@@ -244,6 +298,10 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 		return (int)$wpdb->get_var( "SELECT COUNT( id ) FROM $wpdb->bea_s_campaigns as c WHERE 1 = 1 $filter" );
 	}
 
+	/**
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	private static function get_status_filter( ) {
 		global $wpdb;
 		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Bea_Sender_Campaign::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND c.current_status = %s', $_GET['current_status'] );

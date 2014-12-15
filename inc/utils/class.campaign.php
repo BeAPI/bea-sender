@@ -28,11 +28,25 @@ class Bea_Sender_Campaign {
 		// Init the object by getting informations from the database
 		return $this->setID( $id );
 	}
-	
+
+	/**
+	 * Getter
+	 *
+	 * @param $key_name
+	 *
+	 * @return mixed
+	 * @author Nicolas Juen
+	 */
 	public function __get( $key_name ) {
 		return $this->$key_name;
 	}
 
+	/**
+	 * @param int $id
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function setID( $id = 0 ) {
 		if( !isset( $id ) || $id <= 0 ) {
 			return false;
@@ -44,18 +58,34 @@ class Bea_Sender_Campaign {
 		return $this->is_data === true ? $this->is_data : false;
 	}
 
+	/**
+	 * @return int
+	 * @author Nicolas Juen
+	 */
 	public function getID( ) {
 		return (int)$this->id;
 	}
 
+	/**
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	public function isData( ) {
 		return (bool)$this->is_data;
 	}
 
+	/**
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	public static function getAuthStatuses( ) {
 		return self::$auth_statuses;
 	}
 
+	/**
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function setupBasics( ) {
 		global $wpdb;
 
@@ -77,6 +107,10 @@ class Bea_Sender_Campaign {
 		return true;
 	}
 
+	/**
+	 * @return array|bool
+	 * @author Nicolas Juen
+	 */
 	public function makeSend( ) {
 		global $bea_send_counter;
 
@@ -98,7 +132,12 @@ class Bea_Sender_Campaign {
 		return $this->send( );
 	}
 
+	/**
+	 * @return bool|int
+	 * @author Nicolas Juen
+	 */
 	public function deleteCampaign( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 		if( $this->id <= 0 || !$this->isData( ) ) {
 			return false;
@@ -125,6 +164,10 @@ class Bea_Sender_Campaign {
 		return $contents + $reca + $campaign + $attachments;
 	}
 
+	/**
+	 * @return array|bool
+	 * @author Nicolas Juen
+	 */
 	private function setupSendingData( ) {
 		if( !isset( $this->id ) || empty( $this->id ) || !$this->is_data ) {
 			return false;
@@ -132,6 +175,7 @@ class Bea_Sender_Campaign {
 		$this->attachments = $this->get_attachments( );
 		return $this->emailContents = $this->getEmailsContents( );
 	}
+
 
 	private function send( ) {
 		global $bea_send_counter;
@@ -209,6 +253,10 @@ class Bea_Sender_Campaign {
 		return !isset( $emails ) || empty( $emails ) ? array( ) : $emails;
 	}
 
+	/**
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	private function get_attachments( ) {
 		global $wpdb;
 
@@ -223,6 +271,16 @@ class Bea_Sender_Campaign {
 		return !isset( $attachments ) || empty( $attachments ) ? array( ) : $attachments;
 	}
 
+	/**
+	 * @param array  $data_campaign
+	 * @param array  $data
+	 * @param string $content_html
+	 * @param string $content_text
+	 * @param array  $attachments
+	 *
+	 * @return array|bool
+	 * @author Nicolas Juen
+	 */
 	public function add( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '', $attachments = array() ) {
 
 		// Add a campaign
@@ -264,7 +322,14 @@ class Bea_Sender_Campaign {
 		return $this->addReceivers( $data, $c_id );
 	}
 
+	/**
+	 * @param array $data
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function createCampaign( $data = array() ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		if( !isset( $data['from_name'] ) || empty( $data['from_name'] ) ) {
@@ -311,6 +376,13 @@ class Bea_Sender_Campaign {
 		return $inserted !== false ? $wpdb->insert_id : false;
 	}
 
+	/**
+	 * @param array $receivers
+	 * @param int   $c_id
+	 *
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	private function addReceivers( $receivers = array(), $c_id = 0 ) {
 		$result = array( );
 		foreach( $receivers as $receiver ) {
@@ -332,6 +404,15 @@ class Bea_Sender_Campaign {
 		return $result;
 	}
 
+	/**
+	 * @param string $email
+	 * @param int    $c_id
+	 * @param string $content_html
+	 * @param string $content_text
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function addReceiver( $email = '', $c_id = 0, $content_html = '', $content_text = '' ) {
 		// Create the user and get the ID on database
 		$receiver = new Bea_Sender_Receiver( $email );
@@ -369,7 +450,15 @@ class Bea_Sender_Campaign {
 		return $inserted !== false ? true : false;
 	}
 
+	/**
+	 * @param $id
+	 * @param $status
+	 *
+	 * @return mixed
+	 * @author Nicolas Juen
+	 */
 	private function changeRecaStatus( $id, $status ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// Do action when changing the status
@@ -378,7 +467,14 @@ class Bea_Sender_Campaign {
 		return $wpdb->update( $wpdb->bea_s_re_ca, array( 'current_status' => $status ), array( 'id' => $id ) );
 	}
 
+	/**
+	 * @param $status
+	 *
+	 * @return mixed
+	 * @author Nicolas Juen
+	 */
 	private function changeStatus( $status ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// Do action when changing the status
@@ -386,7 +482,12 @@ class Bea_Sender_Campaign {
 		return $wpdb->update( $wpdb->bea_s_campaigns, array( 'current_status' => $status ), array( 'id' => $this->id ) );
 	}
 
+	/**
+	 * @return int
+	 * @author Nicolas Juen
+	 */
 	public function todo( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		$counter = $wpdb->get_var( $wpdb->prepare( "SELECT 
@@ -403,6 +504,9 @@ class Bea_Sender_Campaign {
 		return !isset( $counter ) ? 0 : (int)$counter;
 	}
 
+	/**
+	 * @author Nicolas Juen
+	 */
 	private function addSendFilters( ) {
 		// Add filters for correct email send
 		add_filter( 'wp_mail_content_type', array(
@@ -419,6 +523,9 @@ class Bea_Sender_Campaign {
 		) );
 	}
 
+	/**
+	 * @author Nicolas Juen
+	 */
 	private function removeSendFilters( ) {
 		// Remove filters
 		remove_filter( 'wp_mail_content_type', array(
@@ -435,6 +542,10 @@ class Bea_Sender_Campaign {
 		) );
 	}
 
+	/**
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	public function returnHtml( ) {
 		return 'text/html';
 	}
@@ -467,12 +578,8 @@ class Bea_Sender_Campaign {
 	 *
 	 */
 	public function get_receivers( $where = '', $orderby = '', $limit = '' ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
-
-		// Escape the given data
-		$where = $wpdb->escape( $where );
-		$orderby = $wpdb->escape( $orderby );
-		$limit = $wpdb->escape( $limit );
 
 		$receivers = $wpdb->get_results( $wpdb->prepare( "SELECT 
 				r.id,
@@ -513,12 +620,8 @@ class Bea_Sender_Campaign {
 	 *
 	 */
 	public function get_total_receivers( $where = '', $orderby = '', $limit = '' ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
-
-		// Escape the given data
-		$where = $wpdb->escape( $where );
-		$orderby = $wpdb->escape( $orderby );
-		$limit = $wpdb->escape( $limit );
 
 		$receivers = $wpdb->get_var( $wpdb->prepare( "SELECT 
 				COUNT( r.id )
@@ -557,7 +660,9 @@ class Bea_Sender_Campaign {
 	 * 
 	 */
 	public function get_status_count( $status ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
+
 		return $wpdb->get_var( $wpdb->prepare( "
 		SELECT 
 			COUNT( reca.id ) as status

@@ -2,7 +2,7 @@
 require( dirname(__FILE__) . '/config.php' );
 
 $data_campaign = array(
-	'from' => 'no-reply@fenici.fr',
+	'from' => 'nicolasjuenbeapi@yahoo.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests normal',
 
@@ -28,7 +28,7 @@ if( !empty( $insert ) ) {
 }
 
 $data_campaign = array(
-	'from' => 'no-reply@fenici.fr',
+	'from' => 'nicolasjuenbeapi@yahoo.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests mutltiple',
 );
@@ -37,7 +37,7 @@ $content_html = '<div>HTML Multiple</div>';
 $content_text = '<div>TEXT multiple</div>';
 $data = array(
 	array( 
-		'email' => 'no-reply@fenici.fr',
+		'email' => 'nicolasjuenbeapi@yahoo.fr',
 		'html' => '1'.$content_html,
 		'text' => '1'.$content_text,
 	),
@@ -77,7 +77,7 @@ if( !empty( $insert ) ) {
 }
 
 $data_campaign = array(
-	'from' => 'no-reply@fenici.fr',
+	'from' => 'nicolasjuenbeapi@yahoo.fr',
 	'from_name' => 'Nicolas Juen',
 	'subject' => 'Tests mutltiple',
 	'scheduled_from' => date( 'Y-m-d H:m:i' ,strtotime( '+15 minutes' ) )

@@ -10,6 +10,13 @@ Class Bea_Sender_Content {
 		return $this;
 	}
 
+	/**
+	 * @param        $content_html
+	 * @param string $content_text
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function setContent( $content_html, $content_text = '' ) {
 		if( !isset( $content_html ) || empty( $content_html ) ) {
 			return false;
@@ -20,6 +27,10 @@ Class Bea_Sender_Content {
 		return true;
 	}
 
+	/**
+	 * @return int
+	 * @author Nicolas Juen
+	 */
 	public function create( ) {
 		if( !isset( $this->content_html ) || empty( $this->content_html ) ) {
 			return $this->id;
@@ -27,6 +38,10 @@ Class Bea_Sender_Content {
 		return $this->createContent( );
 	}
 
+	/**
+	 * @return int
+	 * @author Nicolas Juen
+	 */
 	private function createContent( ) {
 		global $wpdb;
 
@@ -34,7 +49,7 @@ Class Bea_Sender_Content {
 
 		$inserted = $wpdb->insert( $wpdb->bea_s_contents, array(
 			'html' => $this->content_html,
-			'text' => $this->content_text
+			'text' => $content_text
 		) );
 
 		//Return inserted element
@@ -42,10 +57,18 @@ Class Bea_Sender_Content {
 		return $this->id;
 	}
 
+	/**
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	public function get_html( ) {
 		return $this->content_html;
 	}
 
+	/**
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	public function get_text( ) {
 		return $this->content_text;
 	}

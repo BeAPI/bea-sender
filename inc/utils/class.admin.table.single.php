@@ -3,7 +3,6 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	/**
 	 * Constructor
 	 *
-	 * @return void
 	 * @author Nicolas Juen
 	 */
 	public function __construct( ) {
@@ -13,17 +12,29 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 			'ajax' => false	// does this table support ajax?
 		) );
 	}
-	
+
+	/**
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	function get_views( ) {
 		$base_url = add_query_arg( array( 'page' => 'bea_sender', 'c_id' => isset( $_GET['c_id'] ) ? $_GET['c_id'] : 0 ), admin_url( 'tools.php' ) );
 
-		$add = array( 'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea_sender' ), $base_url, self::current_view( 'all' ) ) );
-		foreach( self::getAuthStatuses() as $status ) {
-			$add[$status] = sprintf( '<a href="%s" class="%s" >%s</a>', add_query_arg( array( 'current_status' => $status ), $base_url ), self::current_view( $status ), Bea_Sender_Client::getStatus( $status ) );
-		}
+		$add = array(
+			'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea_sender' ), $base_url, self::current_view( 'all' ) ),
+			'invalid' => sprintf( __( '<a href="%s" class="%s" >Bounced</a>', 'bea_sender' ), add_query_arg( array( 'current_status' => 'invalid' ), $base_url ), self::current_view( 'invalid' ) ),
+			'valid' => sprintf( __( '<a href="%s" class="%s" >Valid</a>', 'bea_sender' ), add_query_arg( array( 'current_status' => 'valid' ), $base_url ), self::current_view( 'valid' ) ),
+		);
+
 		return $add;
 	}
-	
+
+	/**
+	 * @param $slug
+	 *
+	 * @return string
+	 * @author Nicolas Juen
+	 */
 	private static function current_view( $slug ) {
 		if( isset( $_GET['current_status'] ) && $_GET['current_status'] === $slug ) {
 			return 'current';
@@ -32,9 +43,13 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 		}
 		return '';
 	}
-	
+
+	/**
+	 * @return array
+	 * @author Nicolas Juen
+	 */
 	private static function getAuthStatuses() {
-		return array();
+		return array( 'invalid', 'valid' );
 	}
 	
 	/**
@@ -105,6 +120,7 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function prepareQuery( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 		
 		// Setup the campaign
@@ -134,6 +150,7 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function totalItems( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 		$filter = self::get_status_filter( );
 		// Setup the campaign
@@ -143,9 +160,14 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 		return $campaign->get_total_receivers( $filter );
 	}
 
+	/**
+	 * @return false|null|string
+	 * @author Nicolas Juen
+	 */
 	private static function get_status_filter( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
-		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Bea_Sender_Campaign::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND current_status = %s', $_GET['current_status'] );
+		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], self::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND r.current_status = %s', $_GET['current_status'] );
 	}
 
 	/**

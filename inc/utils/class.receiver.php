@@ -10,11 +10,20 @@ class Bea_Sender_Receiver {
 
 	public $content;
 
+	/**
+	 * @param $email
+	 */
 	function __construct( $email ) {
 		$this->setEmail( $email );
 		return $this;
 	}
 
+	/**
+	 * @param string $email
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	public static function getReceiver( $email = '' ) {
 		global $wpdb;
 		if( empty( $email ) || !is_email( $email ) ) {
@@ -25,6 +34,12 @@ class Bea_Sender_Receiver {
 		return $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $wpdb->bea_s_receivers WHERE 1=1 AND email=%s", $email ) );
 	}
 
+	/**
+	 * @param $email
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	public function setEmail( $email ) {
 		if( !isset( $email ) || empty( $email ) || !is_email( $email ) ) {
 			return false;
@@ -33,6 +48,12 @@ class Bea_Sender_Receiver {
 		$this->email = $email;
 	}
 
+	/**
+	 * @param int $campaign_id
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	public function set_receiver( $campaign_id = 0 ) {
 		$receiver = self::getReceiver( $this->email );
 
@@ -47,7 +68,14 @@ class Bea_Sender_Receiver {
 		return $this->setup_receiver( $campaign_id );
 	}
 
+	/**
+	 * @param int $campaign_id
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	private function setup_receiver( $campaign_id = 0 ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		if( (int)$campaign_id <= 0 ) {
@@ -71,7 +99,14 @@ class Bea_Sender_Receiver {
 		return true;
 	}
 
+	/**
+	 * @param int $campaign_id
+	 *
+	 * @return bool
+	 * @author Nicolas Juen
+	 */
 	public function get_contents_campaign( $campaign_id = 0 ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		$data = $wpdb->get_row( $wpdb->prepare( "SELECT 
@@ -96,6 +131,10 @@ class Bea_Sender_Receiver {
 		return true;
 	}
 
+	/**
+	 * @return bool|int
+	 * @author Nicolas Juen
+	 */
 	public function create( ) {
 		if( !isset( $this->email ) || empty( $this->email ) ) {
 			return false;
@@ -107,7 +146,12 @@ class Bea_Sender_Receiver {
 		return $this->id;
 	}
 
+	/**
+	 * @return bool|false|int
+	 * @author Nicolas Juen
+	 */
 	private function createReceiver( ) {
+		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// Try to get the receiver before
@@ -129,6 +173,12 @@ class Bea_Sender_Receiver {
 		return $inserted;
 	}
 
+	/**
+	 * @param $name
+	 *
+	 * @return mixed
+	 * @author Nicolas Juen
+	 */
 	public function __get( $name ) {
 		return $this->$name;
 	}
