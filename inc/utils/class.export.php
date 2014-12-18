@@ -3,18 +3,7 @@
 class Bea_Sender_Export {
 	private static $header_titles;
 
-	function __construct() {
-		$this->header_titles = apply_filters(
-			'bea_sender_csv_headers', array(
-				'Id',
-				'Email',
-				'Current status',
-				'Bounce cat',
-				'Bounce type',
-				'Bounce no'
-			)
-		);
-	}
+	function __construct() {}
 
 	/**
 	 * Retrieve datas for globals or single campaign
@@ -98,6 +87,17 @@ class Bea_Sender_Export {
 	 * @return mixed|void
 	 */
 	public static function get_Header_titles() {
+		self::$header_titles = apply_filters(
+			'bea_sender_csv_headers', array(
+				'Id',
+				'Email',
+				'Current status',
+				'Bounce cat',
+				'Bounce type',
+				'Bounce no'
+			)
+		);
+
 		return self::$header_titles;
 	}
 }
