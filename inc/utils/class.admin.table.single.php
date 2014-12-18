@@ -69,21 +69,23 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function column_default( $item, $column_name ) {
+		$value = '';
 		switch( $column_name ) {
 			case 'id' :
 			case 'email' :
 			case 'bounce_cat' :
 			case 'bounce_type' :
 			case 'bounce_no' :
-				return $item->$column_name;
+				$value = $item->$column_name;
 			break;
 			case 'current_status' :
-				return Bea_Sender_Client::getStatus( $item->current_status );
+				$value =  Bea_Sender_Client::getStatus( $item->current_status );
 			break;
 			case 'campaign_status' :
-				return Bea_Sender_Client::getStatus( $item->campaign_current_status );
+				$value =  Bea_Sender_Client::getStatus( $item->campaign_current_status );
 			break;
 		}
+		return apply_filters( 'manage_'.$this->screen->id.'_single_custom_column', $value, $item, $column_name );
 	}
 
 	/**
@@ -178,7 +180,7 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 */
 	function prepare_items( ) {
 		$this->_column_headers = array(
-			$this->get_columns( ),
+			apply_filters( "manage_{$this->screen->id}_single_columns", $this->get_columns( ) ),
 			array( ),
 			$this->get_sortable_columns( )
 		);
