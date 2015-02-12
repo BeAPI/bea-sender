@@ -6,8 +6,16 @@ class Bea_Sender_BounceEmail {
 	private static $locked = false;
 	private static $lock_file = '/lock-bounce.lock';
 
+	/**
+	 * Log for the bounces
+	 *
+	 * @var Bea_Log
+	 */
+	private $log;
+
 	public function __construct() {
 		$this->bmh = new BounceMailHandler();
+		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-bounce-cron' );
 	}
 
 	public function bounce_init() {
@@ -16,6 +24,9 @@ class Bea_Sender_BounceEmail {
 		if ( !self::lock() ) {
 			return false;
 		}
+
+		// Log start
+		$this->log->log_this( 'Start Bounce Cron' );
 
 		// Ge teh user options
 		$options = get_option( 'bea_s-main' );
@@ -40,6 +51,9 @@ class Bea_Sender_BounceEmail {
 
 		// Check the basic options
 		if ( empty( $host['mailhost'] ) || empty( $host['mailbox_username'] ) || empty( $host['mailbox_password'] ) ) {
+			// Log
+			$this->log->log_this( 'Bounce stopped : mailhost,mailbox_username or mailbox_password empty' );
+
 			// Unlock the file
 			self::unlock();
 
@@ -73,16 +87,25 @@ class Bea_Sender_BounceEmail {
 		//$this->bmh->deleteMsgDate      = '2009-01-05'; // format must be as
 		// 'yyyy-mm-dd'
 
+		// Log
+		$this->log->log_this( 'Open the mailbox' );
+
 		$this->bmh->openMailbox();
 		$this->bmh->action_function = array(
 			$this,
 			'callback_action'
 		);
+
+		$this->log->log_this( 'Process mailbox' );
 		$this->bmh->processMailbox();
 
+
+		$this->log->log_this( 'Delete mailbox' );
 		// Delete flag and do global deletes if true
 		$this->bmh->globalDelete();
 
+
+		$this->log->log_this( 'Process end' );
 		// Unlock the file
 		self::unlock();
 	}
@@ -113,11 +136,16 @@ class Bea_Sender_BounceEmail {
 		/* @var $wpdb wpdb */
 		global $wpdb;
 
+		// Callback action
+		$this->log->log_this( sprintf( 'Callback action on message for %s', $email ) );
+		$this->log->log_this( sprintf( 'Email : %s | bounce_cat : %s | bounce_type : %s | bounce_no : %s', $email, $rule_cat, $bounce_type, $rule_no ) );
+
 		// The query for update bea_s_receivers table
 		$receiver_result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_receivers WHERE email = %s", $email ) );
 
 		// Update the receiver if possible
 		if ( $receiver_result ) {
+			$this->log->log_this( sprintf( '%s found on database', $email ) );
 			$wpdb->update(
 				$wpdb->bea_s_receivers, array(
 					'current_status' => 'invalid',
@@ -138,6 +166,7 @@ class Bea_Sender_BounceEmail {
 		$re_ca__result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_re_ca WHERE id_campaign = %s AND id_receiver = %s", $xheader, $receiver_id ) );
 
 		if ( $re_ca__result ) {
+			$this->log->log_this( sprintf( '%s found on the _re_ca table', $email ) );
 			$wpdb->update(
 				$wpdb->bea_s_re_ca, array( 'current_status' => 'bounced' ), array(
 					'id_campaign' => $xheader,

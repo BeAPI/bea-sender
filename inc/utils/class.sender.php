@@ -5,7 +5,16 @@ class Bea_Sender_Sender {
 	private static $locked = false;
 	private static $lock_file = '/lock-send.lock';
 
-	function __construct( ) {}
+	/**
+	 * Log for the bounces
+	 *
+	 * @var Bea_Log
+	 */
+	private $log;
+
+	function __construct( ) {
+		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-email-cron' );
+	}
 
 	/**
 	 * @return array|bool
@@ -16,7 +25,10 @@ class Bea_Sender_Sender {
 			return false;
 		}
 
+		$this->log->log_this( 'Start sending' );
+
 		if( !$this->getCampaigns( ) ) {
+			$this->log->log_this( 'No campaign to send, exit.' );
 			// Unlock the file
 			self::unlock();
 		}
@@ -34,6 +46,7 @@ class Bea_Sender_Sender {
 
 		$cols = $wpdb->get_col( "SELECT id FROM $wpdb->bea_s_campaigns WHERE current_status IN( '".implode( "','", Bea_Sender_Campaign::getAuthStatuses( ) )."' ) AND scheduled_from <= '".current_time( 'mysql' )."' ORDER BY add_date ASC" );
 
+		$this->log->log_this( sprintf( '%d campaigns to send', count( $cols ) ) );
 		if( !isset( $cols ) || empty( $cols ) ) {
 			$this->campaigns = array( );
 			return false;
@@ -55,7 +68,7 @@ class Bea_Sender_Sender {
 			if( $campaign->isData( ) !== true ) {
 				continue;
 			}
-
+			$this->log->log_this( sprintf( 'Send %s campaign', $campaign_id ) );
 			do_action( 'bea_sender_before_send_campaign', $campaign_id, $campaign );
 			// Make the sending
 			$results[] = $campaign->makeSend( );
@@ -66,6 +79,8 @@ class Bea_Sender_Sender {
 
 		// Unlock the file
 		self::unlock();
+
+		$this->log->log_this( 'End campaigns '.var_export( $results, true ) );
 		
 		return $results;
 	}
