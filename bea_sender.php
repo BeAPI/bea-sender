@@ -55,6 +55,7 @@ if( is_admin( ) ) {
 
 // Inc
 require (BEA_SENDER_DIR.'/inc/class.client.php');
+require( BEA_SENDER_DIR . '/inc/class.cron.php' );
 
 // Libs
 require (BEA_SENDER_DIR.'/inc/libs/wordpress-settings-api/class.settings-api.php');
@@ -71,6 +72,7 @@ function Bea_sender_init( ) {
 
 	$bea_send_counter = apply_filters( 'bea_send_counter', BEA_SENDER_DEFAULT_COUNTER );
 	$bea_sender['client'] = new Bea_Sender_Client( );
+	new Bea_Sender_Cron();
 
 	if( is_admin( ) ) {
 		$bea_sender['admin'] = new Bea_Sender_Admin( );
