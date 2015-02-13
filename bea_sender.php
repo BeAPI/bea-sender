@@ -38,6 +38,7 @@ require (BEA_SENDER_DIR.'/inc/utils/'.'class.attachment.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.receiver.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.sender.php');
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.bounce.email.php');
+require( BEA_SENDER_DIR . '/inc/utils/' . 'class.export.php' );
 
 // Admin
 if( is_admin( ) ) {
