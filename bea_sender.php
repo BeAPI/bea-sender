@@ -29,6 +29,7 @@ define( 'BEA_SENDER_VER', '1.2.3' );
 define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
+define( 'BEA_SENDER_EXPORT_OPTION_NAME', 'bea_s-export' );
 
 // Utils
 require (BEA_SENDER_DIR.'/inc/utils/'.'class.email.php');
@@ -54,7 +55,7 @@ if( is_admin( ) ) {
 }
 
 // Inc
-require (BEA_SENDER_DIR.'/inc/class.client.php');
+require( BEA_SENDER_DIR . '/inc/class.client.php' );
 require( BEA_SENDER_DIR . '/inc/class.cron.php' );
 
 // Libs
