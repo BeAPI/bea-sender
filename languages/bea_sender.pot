@@ -20,68 +20,92 @@ msgid "BEA Send"
 msgstr ""
 
 #: ../inc/class.admin.php:68
+msgid "Log file creation"
+msgstr ""
+
+#: ../inc/class.admin.php:69
+msgid "Request to create the file."
+msgstr ""
+
+#: ../inc/class.admin.php:70
+msgid "Checking if the lock file exists"
+msgstr ""
+
+#: ../inc/class.admin.php:86
 msgid "Campaigns"
 msgstr ""
 
-#: ../inc/class.admin.php:101
+#: ../inc/class.admin.php:122
 msgid "Internal error"
 msgstr ""
 
-#: ../inc/class.admin.php:103
+#: ../inc/class.admin.php:124
 msgid "No results"
 msgstr ""
 
-#: ../inc/class.admin.php:106
-#, php-format
+#: ../inc/class.admin.php:127
 msgid "%d lines deleted"
 msgstr ""
 
-#: ../inc/class.client.php:94
+#: ../inc/class.admin.php:209
+msgid "Are you sure you want to do this ?"
+msgstr ""
+
+#: ../inc/class.admin.php:226 ../inc/class.admin.php:243
+msgid "Cheater"
+msgstr ""
+
+#: ../inc/class.admin.php:230
+msgid "File creation requested"
+msgstr ""
+
+#: ../inc/class.admin.php:249
+msgid "File not found !"
+msgstr ""
+
+#: ../inc/class.admin.php:268
+#, php-format
+msgid "You can <a href=\"%s\">download</a> your file."
+msgstr ""
+
+#: ../inc/class.admin.php:270
+msgid "File currently being created. last verification : %s"
+msgstr ""
+
+#: ../inc/class.client.php:161
 msgid "In progress"
 msgstr ""
 
-#: ../inc/class.client.php:95
+#: ../inc/class.client.php:162
 msgid "Registered"
 msgstr ""
 
-#: ../inc/class.client.php:96
+#: ../inc/class.client.php:163
 msgid "Done"
 msgstr ""
 
-#: ../inc/class.client.php:97
+#: ../inc/class.client.php:164
 msgid "Sent"
 msgstr ""
 
-#: ../inc/class.client.php:98
+#: ../inc/class.client.php:165
 msgid "Pending"
 msgstr ""
 
-#: ../inc/class.client.php:99
+#: ../inc/class.client.php:166
 msgid "Valid"
 msgstr ""
 
-#: ../inc/class.client.php:100
+#: ../inc/class.client.php:167
 msgid "Bounced"
 msgstr ""
 
-#: ../inc/class.client.php:101
+#: ../inc/class.client.php:168
 msgid "Failed"
 msgstr ""
 
-#: ../inc/class.client.php:102
+#: ../inc/class.client.php:169
 msgid "Invalid"
-msgstr ""
-
-#: ../inc/libs/wordpress-settings-api/class.settings-api.php:347
-msgid "Browse"
-msgstr ""
-
-#: ../inc/libs/wordpress-settings-api/class.settings-api.php:501
-msgid "No section available"
-msgstr ""
-
-#: ../inc/utils/class.admin.bounce.tools.php:31 ../templates/admin-table.php:9
-msgid "Bea Send"
 msgstr ""
 
 #: ../inc/utils/class.admin.bounce.tools.php:46
@@ -181,10 +205,6 @@ msgstr ""
 msgid "Default is INBOX.soft - NOTE: must start with INBOX."
 msgstr ""
 
-#: ../inc/utils/class.admin.bounce.tools.php:173
-msgid "Select a page"
-msgstr ""
-
 #: ../inc/utils/class.admin.table.php:42
 msgid "No campaigns found."
 msgstr ""
@@ -195,44 +215,44 @@ msgstr ""
 msgid "<a href=\"%s\" class=\"%s\" >All</a>"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:141
+#: ../inc/utils/class.admin.table.php:153
 #: ../inc/utils/class.admin.table.single.php:91
 msgid "ID"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:142
+#: ../inc/utils/class.admin.table.php:154
 msgid "Status"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:143
+#: ../inc/utils/class.admin.table.php:155
 msgid "Date added"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:144
+#: ../inc/utils/class.admin.table.php:156
 msgid "Scheduled from"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:145
+#: ../inc/utils/class.admin.table.php:157
 msgid "From"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:146
+#: ../inc/utils/class.admin.table.php:158
 msgid "From name"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:147
+#: ../inc/utils/class.admin.table.php:159
 msgid "Subject"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:148
+#: ../inc/utils/class.admin.table.php:160
 msgid "Emails to send"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:286
+#: ../inc/utils/class.admin.table.php:298
 msgid "Delete"
 msgstr ""
 
-#: ../inc/utils/class.admin.table.php:302
+#: ../inc/utils/class.admin.table.php:314
 msgid "Oups! You probably forgot to tick campaigns to delete?"
 msgstr ""
 
@@ -276,6 +296,13 @@ msgstr ""
 msgid "Bea Send - Settings"
 msgstr ""
 
-#: ../templates/admin-table.php:10
-msgid "Export to CSV"
+#: ../templates/admin-table.php:12
+msgid "Export all emails to CSV"
+msgstr ""
+
+#: ../templates/admin-table.php:18
+#, php-format
+msgid ""
+"The last file was generated on <strong> %s </strong>, you can download the "
+"CSV file on <strong><a href=\"%s\" >this link</a></strong>"
 msgstr ""
