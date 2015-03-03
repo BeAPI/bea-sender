@@ -287,7 +287,7 @@ class Bea_Sender_Admin {
 
 		$outstream = fopen( "php://output", 'w' );
 		//Put header titles
-		fputcsv( $outstream, array_map( 'utf8_decode', Bea_Sender_Export::get_Header_titles() ), ';' );
+		fputcsv( $outstream, array_map( 'utf8_decode', Bea_Sender_Export::get_header_titles( $campaign_id ) ), ';' );
 		// Put lines in csv file
 		foreach ( $list as $fields ) {
 			fputcsv( $outstream, array_map( 'utf8_decode', $fields ), ';' );
@@ -341,8 +341,15 @@ class Bea_Sender_Admin {
 			wp_send_json( array( 'status' => 'error', 'message' => 'Cheater' ) );
 		}
 
+		// Get the CSV file
+		$csv_file = self::get_file_path( $type );
+
+		// Remove the file to be sure
+		@unlink( $csv_file );
+
 		wp_schedule_single_event( time(), $scheduled_event, array( $type ) );
-		//wp_remote_get( home_url() );
+		wp_remote_get( home_url() );
+
 		wp_send_json( array( 'status' => 'success', 'message' => __( 'File creation requested', 'bea_sender' ) ) );
 	}
 
@@ -374,10 +381,9 @@ class Bea_Sender_Admin {
 		if ( false === Bea_Sender_Cron::is_locked( $type ) && false === $scheduled ) {
 			wp_send_json( array( 'status' => 'error', 'message' => __( 'File not found !', 'bea_sender' ) ) );
 		}
-
+		// The upload dir
 		$upload_dir = wp_upload_dir();
-		$file_name  = 'bea-sender-'.$type.'.csv';
-		$csv_file   = $upload_dir['basedir'] . '/' . $file_name;
+		$csv_file = self::get_file_path( $type );
 
 		if ( is_file( $csv_file ) ) {
 			// Get settings
@@ -386,7 +392,7 @@ class Bea_Sender_Admin {
 			// Replace or append the data for the new file
 			$options[$type] = array(
 				'date' => date_i18n( 'Y-m-d H:i:s' ),
-				'url'  => $upload_dir['baseurl'] . '/' . $file_name
+				'url'  => $upload_dir['baseurl'] . '/' . self::get_file_name( $type )
 			);
 
 			// Save new option
@@ -396,6 +402,15 @@ class Bea_Sender_Admin {
 			wp_send_json( array( 'status' => 'success', 'finished' => false, 'message' => __( sprintf( 'File currently being created. last verification : %s' , date_i18n( 'd/m/Y  H:i:s' ) ), 'bea_sender' ) ) );
 		}
 
+	}
+
+	private static function get_file_name( $type ) {
+		return 'bea-sender-'.$type.'.csv';
+	}
+
+	private static function get_file_path( $type ) {
+		$upload_dir = wp_upload_dir();
+		return $upload_dir['basedir'] . '/' . self::get_file_name( $type );
 	}
 
 	/**

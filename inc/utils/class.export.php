@@ -134,9 +134,14 @@ class Bea_Sender_Export {
 	}
 
 	/**
+	 * Add the campaign id
+	 *
+	 * @param $campaign_id
+	 *
 	 * @return mixed|void
+	 * @author Nicolas Juen
 	 */
-	public static function get_Header_titles() {
+	public static function get_header_titles( $campaign_id ) {
 		self::$header_titles = apply_filters(
 			'bea_sender_csv_headers', array(
 				'Id',
@@ -145,7 +150,8 @@ class Bea_Sender_Export {
 				'Bounce cat',
 				'Bounce type',
 				'Bounce no'
-			)
+			),
+			$campaign_id
 		);
 
 		return self::$header_titles;

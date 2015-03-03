@@ -123,16 +123,7 @@ class Bea_Sender_Cron {
 
 		@unlink( $file_name );
 
-		$header_titles = apply_filters(
-			'bea_sender_csv_headers', array(
-				'Id',
-				'Email',
-				'Current status',
-				'Bounce cat',
-				'Bounce type',
-				'Bounce no'
-			)
-		);
+		$header_titles = Bea_Sender_Export::get_header_titles( $type );
 		$list          = Bea_Sender_Export::export_campaign();
 
 		return self::generate_file( $file_name, $header_titles, $list, $type );
@@ -150,16 +141,7 @@ class Bea_Sender_Cron {
 
 		@unlink( $file_name );
 
-		$header_titles = apply_filters(
-			'bea_sender_bounces_csv_headers', array(
-				'Id',
-				'Email',
-				'Current status',
-				'Bounce cat',
-				'Bounce type',
-				'Bounce no'
-			)
-		);
+		$header_titles = Bea_Sender_Export::get_header_titles( $type );
 
 		$list          = Bea_Sender_Export::export_bounces();
 
