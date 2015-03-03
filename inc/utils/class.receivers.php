@@ -75,11 +75,11 @@ class Bea_Sender_Receivers {
 		}
 
 		// Get the bounced users
-		$where = "WHERE 1=1 AND r.current_status = 'bounced'";
+		$where = "WHERE 1=1 AND r.current_status = 'invalid'";
 
 		// If the campaign is given
 		if( !empty( $arguments['campaign_ids'] ) && is_array( $arguments['campaign_ids'] ) ) {
-			$where .= 'AND c.id IN ( '.implode( ',', array_map( 'absint', $arguments['campaign_ids'] ) ).' ) ';
+			$where .= ' AND c.id IN ( '.implode( ',', array_map( 'absint', $arguments['campaign_ids'] ) ).' ) ';
 		}
 
 		// Handle from and to
