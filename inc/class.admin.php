@@ -27,6 +27,9 @@ class Bea_Sender_Admin {
 		// AJAX Action
 		add_action( 'wp_ajax_' . 'bea_sender_launch_cron', array( __CLASS__, 'a_launchCron' ) );
 		add_action( 'wp_ajax_' . 'bea_sender_get_check_file', array( __CLASS__, 'a_getCheckFile' ) );
+
+		// Post Actions
+		add_action( 'admin_post_'.'bea_sender_purge', array( __CLASS__, 'p_purge' ) );
 	}
 
 	/**
@@ -40,6 +43,7 @@ class Bea_Sender_Admin {
 		$hook = add_management_page( $title, __( 'BEA Send', 'bea_sender' ), 'manage_options', 'bea_sender', array( &$this, 'pageManage' ) );
 
 		add_action( 'load-' . $hook, array( __CLASS__, 'admin_enqueue_scripts' ) );
+		add_action( "admin_footer-" . $hook, array( __CLASS__, 'admin_footer' ) );
 	}
 
 	/**
@@ -60,13 +64,109 @@ class Bea_Sender_Admin {
 	 * @author Amaury Balmer, Alexandre Sadowski
 	 */
 	public static function admin_enqueue_scripts() {
+		global $wp_locale;
 		$suffix = defined( 'SCRIPT_DEBUG' ) && true === SCRIPT_DEBUG ? '' : '.min';
 
 		// Register script
-		wp_enqueue_script( 'export-global-csv', BEA_SENDER_URL . '/assets/js/admin-global-export' . $suffix . '.js', array( 'jquery' ), BEA_SENDER_VER, true );
+		wp_enqueue_script( 'export', BEA_SENDER_URL . '/assets/js/app' . $suffix . '.js', array( 'jquery', 'backbone', 'jquery-ui-datepicker' ), BEA_SENDER_VER, true );
 
+		// Localization
+		wp_localize_script( 'export', 'bea_sender_vars',array(
+			'month' => array_values( array_map( 'ucwords', $wp_locale->month ) ),
+			'month_abbrev' => array_values( array_map( 'ucwords', $wp_locale->month_abbrev ) ),
+			'weekday' => array_values( array_map( 'ucwords', $wp_locale->weekday ) ),
+			'weekday_initial' => array_values( array_map( 'ucwords', $wp_locale->weekday_initial ) ),
+			'weekday_abbrev' => array_values( array_map( 'ucwords', $wp_locale->weekday_abbrev ) ),
+			'start_of_week' => get_option( 'start_of_week' ),
+			'date_format' => self::dateformat_PHP_to_jQueryUI( get_option( 'date_format' ) ),
+		) );
+
+		wp_register_style( 'bea-sender-jquery-ui-style', '//code.jquery.com/ui/1.11.3/themes/ui-lightness/jquery-ui.css' );
 		// enqueue the admin styles and scripts
-		wp_enqueue_style( 'bea-send_table', BEA_SENDER_URL . '/assets/css/admin' . $suffix . '.css', array(), BEA_SENDER_VER );
+		wp_enqueue_style( 'bea-send_table', BEA_SENDER_URL . '/assets/css/admin' . $suffix . '.css', array( 'bea-sender-jquery-ui-style' ), BEA_SENDER_VER );
+	}
+
+	/**
+	 * Matches each symbol of PHP date format standard
+	 * with jQuery equivalent codeword
+	 *
+	 * @param $php_format
+	 *
+	 * @return string
+	 * @author Tristan Jahier
+	 */
+	private static function dateformat_PHP_to_jQueryUI( $php_format )  {
+		$SYMBOLS_MATCHING = array(
+			// Day
+			'd' => 'dd',
+			'D' => 'D',
+			'j' => 'd',
+			'l' => 'DD',
+			'N' => '',
+			'S' => '',
+			'w' => '',
+			'z' => 'o',
+			// Week
+			'W' => '',
+			// Month
+			'F' => 'MM',
+			'm' => 'mm',
+			'M' => 'M',
+			'n' => 'm',
+			't' => '',
+			// Year
+			'L' => '',
+			'o' => '',
+			'Y' => 'yy',
+			'y' => 'y',
+			// Time
+			'a' => '',
+			'A' => '',
+			'B' => '',
+			'g' => '',
+			'G' => '',
+			'h' => '',
+			'H' => '',
+			'i' => '',
+			's' => '',
+			'u' => ''
+		);
+		$jqueryui_format = "";
+		$escaping = false;
+		for($i = 0; $i < strlen($php_format); $i++)
+		{
+			$char = $php_format[$i];
+			if($char === '\\') // PHP date format escaping character
+			{
+				$i++;
+				if($escaping) $jqueryui_format .= $php_format[$i];
+				else $jqueryui_format .= '\'' . $php_format[$i];
+				$escaping = true;
+			}
+			else
+			{
+				if($escaping) { $jqueryui_format .= "'"; $escaping = false; }
+				if(isset($SYMBOLS_MATCHING[$char]))
+					$jqueryui_format .= $SYMBOLS_MATCHING[$char];
+				else
+					$jqueryui_format .= $char;
+			}
+		}
+		return $jqueryui_format;
+	}
+
+	/**
+	 *
+	 *
+	 * @author Nicolas Juen
+	 */
+	public static function admin_footer() {
+		$file = BEA_SENDER_DIR.'/templates/admin-js.tpl';
+		if( !is_file( $file ) ) {
+			return;
+		}
+
+		include_once( $file );
 	}
 
 	/**
@@ -112,14 +212,23 @@ class Bea_Sender_Admin {
 	 */
 	public function pageManage() {
 		if ( isset( $_GET['message-code'] ) ) {
-			$_GET['message-code'] = (int) $_GET['message-code'];
-			if ( $_GET['message-code'] == 0 ) {
-				add_settings_error( 'bea_sender', 'settings_updated', __( 'Internal error', 'bea_sender' ), 'error' );
-			} elseif ( $_GET['message-code'] == 1 ) {
-				add_settings_error( 'bea_sender', 'settings_updated', __( 'No results', 'bea_sender' ), 'updated' );
-			} elseif ( $_GET['message-code'] == 2 ) {
-				$result = isset( $_GET['message-value'] ) ? $_GET['message-value'] : 0;
-				add_settings_error( 'bea_sender', 'settings_updated', sprintf( __( '%d lines deleted', 'bea_sender' ), $result ), 'updated' );
+			$message_code = (int) $_GET['message-code'];
+
+			switch( $message_code ) {
+				case 0 :
+					add_settings_error( 'bea_sender', 'settings_updated', __( 'Internal error', 'bea_sender' ), 'error' );
+				break;
+				case 1 :
+					add_settings_error( 'bea_sender', 'settings_updated', __( 'No results', 'bea_sender' ), 'updated' );
+				break;
+				case 2 :
+					$result = isset( $_GET['message-value'] ) ? $_GET['message-value'] : 0;
+					add_settings_error( 'bea_sender', 'settings_updated', sprintf( _n( '%d line deleted', '%d lines deleted', $result , 'bea_sender' ), $result ), 'updated' );
+				break;
+				case 3 :
+					$result = isset( $_GET['message-value'] ) ? $_GET['message-value'] : 0;
+					add_settings_error( 'bea_sender', 'settings_updated', sprintf( _n( '%d line purged', '%d lines purged', $result, 'bea_sender' ), $result ), 'updated' );
+				break;
 			}
 		}
 
@@ -213,14 +322,28 @@ class Bea_Sender_Admin {
 	 * @author Zainoudine Soulé
 	 */
 	public function a_launchCron() {
-		$nonce  = isset( $_POST['nonce'] ) ? $_POST['nonce'] : false;
+		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : false;
+		$type = isset( $_POST['type'] ) ? $_POST['type'] : false;
 
-		if ( ! wp_verify_nonce( $nonce, 'bea-sender-export' ) ) {
+		switch( $type ) {
+			case 'bounces':
+				$nonce_name = 'bea-sender-export-bounces';
+				$scheduled_event = 'generate_global_bounces_csv_event';
+			break;
+			case 'global':
+			default:
+				$nonce_name = 'bea-sender-export-global';
+				$scheduled_event = 'generate_global_csv_event';
+			break;
+		}
+
+		if ( ! wp_verify_nonce( $nonce, $nonce_name ) ) {
 			wp_send_json( array( 'status' => 'error', 'message' => 'Cheater' ) );
 		}
 
-		wp_schedule_single_event( time(), 'generate_global_csv_event', array( 0 ) );
-		wp_send_json( array( 'status' => 'success', 'message' => 'File creation requested' ) );
+		wp_schedule_single_event( time(), $scheduled_event, array( $type ) );
+		//wp_remote_get( home_url() );
+		wp_send_json( array( 'status' => 'success', 'message' => __( 'File creation requested', 'bea_sender' ) ) );
 	}
 
 	/**
@@ -229,19 +352,31 @@ class Bea_Sender_Admin {
 	 */
 	public function a_getCheckFile() {
 		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : false;
+		$type = isset( $_POST['type'] ) ? $_POST['type'] : false;
 
-		if ( ! wp_verify_nonce( $nonce, 'bea-sender-export' ) ) {
-			wp_send_json( array( 'status' => 'error', 'message' => 'Cheater' ) );
+		switch( $type ) {
+			case 'bounces':
+				$nonce_name = 'bea-sender-export-bounces';
+				$scheduled_event = 'generate_global_bounces_csv_event';
+				break;
+			case 'global':
+			default:
+				$nonce_name = 'bea-sender-export-global';
+				$scheduled_event = 'generate_global_csv_event';
+				break;
+		}
+		if ( ! wp_verify_nonce( $nonce, $nonce_name ) ) {
+			wp_send_json( array( 'status' => 'error', 'message' => __( 'Cheater', 'bea_sender' ) ) );
 		}
 
-		$scheduled = Bea_Sender_Cron::wp_get_schedule( 'generate_global_csv_event', array( 0 ) );
+		$scheduled = Bea_Sender_Cron::wp_get_schedule( $scheduled_event, array( $type ) );
 
-		if ( false === Bea_Sender_Cron::is_locked() && false === $scheduled ) {
-			wp_send_json( array( 'status' => 'error', 'message' => 'File not found !' ) );
+		if ( false === Bea_Sender_Cron::is_locked( $type ) && false === $scheduled ) {
+			wp_send_json( array( 'status' => 'error', 'message' => __( 'File not found !', 'bea_sender' ) ) );
 		}
 
 		$upload_dir = wp_upload_dir();
-		$file_name  = 'bea-send.csv';
+		$file_name  = 'bea-sender-'.$type.'.csv';
 		$csv_file   = $upload_dir['basedir'] . '/' . $file_name;
 
 		if ( is_file( $csv_file ) ) {
@@ -249,18 +384,48 @@ class Bea_Sender_Admin {
 			$options = get_option( BEA_SENDER_EXPORT_OPTION_NAME, array() );
 
 			// Replace or append the data for the new file
-			$options['global'] = array(
+			$options[$type] = array(
 				'date' => date_i18n( 'Y-m-d H:i:s' ),
 				'url'  => $upload_dir['baseurl'] . '/' . $file_name
 			);
 
 			// Save new option
 			update_option( BEA_SENDER_EXPORT_OPTION_NAME, $options );
-			wp_send_json( array( 'status' => 'success', 'finished' => true, 'message' => 'You can <a href="' . $options['global']['url'] . '">download</a> your file.' ) );
+			wp_send_json( array( 'status' => 'success', 'finished' => true, 'message' => __( sprintf( 'You can <a href="%s">download</a> your file.', $options[$type]['url'] ), 'bea_sender' ) ) );
 		} else {
-			wp_send_json( array( 'status' => 'success', 'finished' => false, 'message' => 'File currently being created. last verification : ' . date_i18n( 'd/m/Y  H:i:s' ) ) );
+			wp_send_json( array( 'status' => 'success', 'finished' => false, 'message' => __( sprintf( 'File currently being created. last verification : %s' , date_i18n( 'd/m/Y  H:i:s' ) ), 'bea_sender' ) ) );
 		}
 
+	}
+
+	/**
+	 * Allow to purge all the bounces
+	 *
+	 * @author Nicolas Juen
+	 */
+	public static function p_purge() {
+		// Check nonce
+		check_admin_referer( 'bea-sender-purge' );
+
+		// Check permissions
+		if( !current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Cheatin&#8217; uh?' ) );
+		}
+
+		$from = isset( $_POST['date_from'] ) && strtotime( $_POST['date_from'] ) !== false ? $_POST['date_from'] : false ;
+		$to = isset( $_POST['date_to'] ) && strtotime( $_POST['date_to'] ) !== false ? $_POST['date_to'] : false ;
+
+		$purged = Bea_Sender_Receivers::purge_bounced( array( 'from' => $from, 'to' => $to ) );
+
+		wp_safe_redirect( add_query_arg(
+			array(
+				'page' => 'bea_sender',
+				'message-code' => 3,
+				'message-value' => $purged
+			),
+			admin_url( 'tools.php' )
+		) );
+		die();
 	}
 
 }

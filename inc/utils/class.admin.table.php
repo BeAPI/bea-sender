@@ -398,7 +398,7 @@ class Bea_Sender_Admin_Table extends WP_List_Table {
 
 				wp_redirect( add_query_arg( array(
 					'page' => 'bea_sender',
-					'message-code' => $message_code,
+					'message-code' => 3,
 					'message-value' => $total
 				), admin_url( 'tools.php' ) ) );
 				exit( );

@@ -4,63 +4,85 @@ class Bea_Sender_Cron {
 
 	function __construct() {
 		add_action( 'generate_global_csv_event', array( __CLASS__, 'cron_buildCSV' ) );
+		add_action( 'generate_global_bounces_csv_event', array( __CLASS__, 'cron_buildCSV_Bounces' ) );
 	}
 
-	public static function activate() {
-	}
+	public static function activate() {}
 
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'generate_global_csv_event' );
+		wp_clear_scheduled_hook( 'generate_global_bounces_csv_event' );
 	}
 
 	/**
 	 * Create the CSV
 	 *
-	 * @param array $args
+	 * @param string $name
 	 *
 	 * @return bool
 	 * @author Zainoudine soulé
 	 */
-	public static function cron_buildCSV( $args = array() ) {
-		if ( self::is_locked( $args[0] ) ) {
+	public static function cron_buildCSV( $name = '' ) {
+		if ( self::is_locked( $name ) ) {
 			return false;
 		}
 
 		// Lock the file
-		if ( self::create_lock_file( $args[0] ) === false ) {
+		if ( self::create_lock_file( $name ) === false ) {
 			return false;
 		}
 
-		$export = self::generate_csv_global_compaign();
+		self::generate_csv_global_campaign( $name );
+	}
+
+	/**
+	 * Create the CSV
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 * @author Zainoudine soulé
+	 */
+	public static function cron_buildCSV_Bounces( $name ) {
+		if ( self::is_locked( $name ) ) {
+			return false;
+		}
+
+		// Lock the file
+		if ( self::create_lock_file( $name ) === false ) {
+			return false;
+		}
+
+		self::generate_csv_bounces_campaign( $name );
 	}
 
 	/**
 	 * Check if locked file exist
 	 *
-	 * @param int $campaign_id
+	 * @param string $name
 	 *
 	 * @return bool
 	 * @author Zainoudine Soulé
 	 */
-	public static function is_locked( $campaign_id = 0 ) {
+	public static function is_locked( $name = '' ) {
 		clearstatcache();
 
-		return file_exists( self::get_lock_file_path( $campaign_id ) );
+		return file_exists( self::get_lock_file_path( $name ) );
 	}
 
 	/**
 	 * Get lock file
 	 *
-	 * @param int $campaign_id
+	 * @param string $name
 	 *
 	 * @return string
 	 * @author Zainoudine Soulé
 	 */
-	public static function get_lock_file_path( $campaign_id = 0 ) {
+	public static function get_lock_file_path( $name = '' ) {
 		// Create the file on system file
 		$uploads = wp_upload_dir();
 
-		$name = $campaign_id > 0 ? '.lock-campaign-' . $campaign_id : '.lock-campaign';
+		$name = !empty( $name ) ? '.lock-bea-sender-' . $name : '.lock-bea-sender';
 
 		return $uploads['basedir'] . '/' . $name;
 	}
@@ -68,25 +90,25 @@ class Bea_Sender_Cron {
 	/**
 	 * Create the .lock file
 	 *
-	 * @param int $campaign_id
+	 * @param string $name
 	 *
 	 * @return bool
 	 * @author Zainoudine Soulé
 	 */
-	public function create_lock_file( $campaign_id = 0 ) {
-		return touch( self::get_lock_file_path( $campaign_id ) );
+	public function create_lock_file( $name = '' ) {
+		return touch( self::get_lock_file_path( $name ) );
 	}
 
 	/**
 	 * Delete lock file
 	 *
-	 * @param $campaign_id
+	 * @param string $name
 	 *
 	 * @return bool
 	 * @author Zainoudine Soulé
 	 */
-	public static function delete_lock_file( $campaign_id = 0 ) {
-		return self::is_locked( $campaign_id ) ? unlink( self::get_lock_file_path( $campaign_id ) ) : true;
+	public static function delete_lock_file( $name = '' ) {
+		return self::is_locked( $name ) ? unlink( self::get_lock_file_path( $name ) ) : true;
 	}
 
 	/**
@@ -95,9 +117,9 @@ class Bea_Sender_Cron {
 	 * @return bool
 	 * @author Zainoudine soulé
 	 */
-	private static function generate_csv_global_compaign() {
+	private static function generate_csv_global_campaign( $type ) {
 		$upload_dir = wp_upload_dir();
-		$file_name  = $upload_dir['basedir'] . '/bea-send.csv';
+		$file_name  = $upload_dir['basedir'] . '/bea-sender-'.$type.'.csv';
 
 		@unlink( $file_name );
 
@@ -113,9 +135,40 @@ class Bea_Sender_Cron {
 		);
 		$list          = Bea_Sender_Export::export_campaign();
 
+		return self::generate_file( $file_name, $header_titles, $list, $type );
+	}
 
+	/**
+	 * Export bounces
+	 *
+	 * @return bool
+	 * @author Zainoudine soulé
+	 */
+	private static function generate_csv_bounces_campaign( $type ) {
+		$upload_dir = wp_upload_dir();
+		$file_name  = $upload_dir['basedir'] . '/bea-sender-'.$type.'.csv';
+
+		@unlink( $file_name );
+
+		$header_titles = apply_filters(
+			'bea_sender_bounces_csv_headers', array(
+				'Id',
+				'Email',
+				'Current status',
+				'Bounce cat',
+				'Bounce type',
+				'Bounce no'
+			)
+		);
+
+		$list          = Bea_Sender_Export::export_bounces();
+
+		return self::generate_file( $file_name, $header_titles, $list, $type );
+	}
+
+	private static function generate_file( $file_name, $headers, $list, $type ) {
 		$outstream = fopen( $file_name, 'w' );
-		fputcsv( $outstream, array_map( 'utf8_decode', $header_titles ), ';' );
+		fputcsv( $outstream, array_map( 'utf8_decode', $headers ), ';' );
 		// Put lines in csv file
 		foreach ( $list as $fields ) {
 			fputcsv( $outstream, array_map( 'utf8_decode', $fields ), ';' );
@@ -123,9 +176,7 @@ class Bea_Sender_Cron {
 
 		fclose( $outstream );
 
-		self::delete_lock_file();
-
-		return true;
+		return self::delete_lock_file( $type );
 	}
 
 	public static function wp_get_schedule( $hook, $args = array() ) {
