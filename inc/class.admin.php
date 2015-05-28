@@ -348,7 +348,6 @@ class Bea_Sender_Admin {
 		@unlink( $csv_file );
 
 		wp_schedule_single_event( time(), $scheduled_event, array( $type ) );
-		wp_remote_get( home_url() );
 
 		wp_send_json( array( 'status' => 'success', 'message' => __( 'File creation requested', 'bea_sender' ) ) );
 	}

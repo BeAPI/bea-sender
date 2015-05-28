@@ -170,7 +170,7 @@ class Bea_Sender_Cron {
 
 		foreach ( $crons as $timestamp => $cron ) {
 			if ( isset( $cron[$hook][$key] ) ) {
-				return $cron[$hook][$key]['schedule'];
+				return true;
 			}
 		}
 
