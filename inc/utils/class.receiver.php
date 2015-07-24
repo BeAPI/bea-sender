@@ -1,4 +1,5 @@
 <?php
+
 class Bea_Sender_Receiver {
 	private $email = '';
 	private $id = 0;
@@ -15,6 +16,7 @@ class Bea_Sender_Receiver {
 	 */
 	function __construct( $email ) {
 		$this->setEmail( $email );
+
 		return $this;
 	}
 
@@ -26,7 +28,7 @@ class Bea_Sender_Receiver {
 	 */
 	public static function getReceiver( $email = '' ) {
 		global $wpdb;
-		if( empty( $email ) || !is_email( $email ) ) {
+		if ( empty( $email ) || ! is_email( $email ) ) {
 			return false;
 		}
 
@@ -41,7 +43,7 @@ class Bea_Sender_Receiver {
 	 * @author Nicolas Juen
 	 */
 	public function setEmail( $email ) {
-		if( !isset( $email ) || empty( $email ) || !is_email( $email ) ) {
+		if ( ! isset( $email ) || empty( $email ) || ! is_email( $email ) ) {
 			return false;
 		}
 
@@ -57,12 +59,12 @@ class Bea_Sender_Receiver {
 	public function set_receiver( $campaign_id = 0 ) {
 		$receiver = self::getReceiver( $this->email );
 
-		if( !isset( $receiver ) || empty( $receiver ) ) {
+		if ( ! isset( $receiver ) || empty( $receiver ) ) {
 			return false;
 		}
 
 		// Setup id
-		$this->id = (int)$receiver;
+		$this->id = (int) $receiver;
 
 		// Make the user data to the object
 		return $this->setup_receiver( $campaign_id );
@@ -78,12 +80,12 @@ class Bea_Sender_Receiver {
 		/* @var $wpdb wpdb */
 		global $wpdb;
 
-		if( (int)$campaign_id <= 0 ) {
+		if ( (int) $campaign_id <= 0 ) {
 			$data = $wpdb->get_row( $wpdb->prepare( "
 					SELECT * FROM $wpdb->bea_s_receivers as r
 					WHERE 1=1 
 						AND r.id=%d", $this->id ) );
-		} else {// Campaign data related
+		} else { // Campaign data related
 			$data = $wpdb->get_row( $wpdb->prepare( "
 					SELECT r.id, email, reca.current_status as campaign_current_status, r.current_status, bounce_cat, bounce_type, bounce_no FROM $wpdb->bea_s_receivers as r
 						JOIN $wpdb->bea_s_re_ca AS reca ON r.id = reca.id_receiver 
@@ -92,7 +94,7 @@ class Bea_Sender_Receiver {
 						AND id_campaign = %d", $this->id, $campaign_id ) );
 		}
 
-		foreach( $data as $key => $value ) {
+		foreach ( $data as $key => $value ) {
 			$this->$key = $value;
 		}
 
@@ -110,8 +112,7 @@ class Bea_Sender_Receiver {
 		global $wpdb;
 
 		$data = $wpdb->get_row( $wpdb->prepare( "SELECT 
-				text,
-				html
+				id
 			FROM $wpdb->bea_s_re_ca AS reca
 				JOIN $wpdb->bea_s_receivers AS r ON r.id = reca.id_receiver
 				JOIN $wpdb->bea_s_contents AS c ON reca.id_content = c.id
@@ -121,12 +122,12 @@ class Bea_Sender_Receiver {
 				AND r.id = %d
 			", $campaign_id, $this->id ) );
 
-		if( !isset( $data ) || empty( $data ) ) {
+		if ( ! isset( $data ) || empty( $data ) ) {
 			return false;
 		}
 
 		// Setup object
-		$this->content = new Bea_Sender_Content( $data->html, $data->text );
+		$this->content = new Bea_Sender_Content( $data->id );
 
 		return true;
 	}
@@ -135,13 +136,13 @@ class Bea_Sender_Receiver {
 	 * @return bool|int
 	 * @author Nicolas Juen
 	 */
-	public function create( ) {
-		if( !isset( $this->email ) || empty( $this->email ) ) {
+	public function create() {
+		if ( ! isset( $this->email ) || empty( $this->email ) ) {
 			return false;
 		}
 
 		// Create the receiver
-		$this->createReceiver( );
+		$this->createReceiver();
 
 		return $this->id;
 	}
@@ -150,26 +151,28 @@ class Bea_Sender_Receiver {
 	 * @return bool|false|int
 	 * @author Nicolas Juen
 	 */
-	private function createReceiver( ) {
+	private function createReceiver() {
 		/* @var $wpdb wpdb */
 		global $wpdb;
 
 		// Try to get the receiver before
 		$receiver = self::getReceiver( $this->email );
 
-		if( !$receiver ) {
+		if ( ! $receiver ) {
 			// Insert the user
 			$inserted = $wpdb->insert( $wpdb->bea_s_receivers, array(
-				'email' => $this->email,
+				'email'          => $this->email,
 				'current_status' => 'valid'
 			), array( '%s' ) );
 		} else {
 			$this->id = $receiver;
+
 			return true;
 		}
 
 		//Return inserted element
-		$this->id = ($inserted !== false) ? $wpdb->insert_id : 0;
+		$this->id = ( $inserted !== false ) ? $wpdb->insert_id : 0;
+
 		return $inserted;
 	}
 
