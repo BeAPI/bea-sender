@@ -78,8 +78,7 @@ class Bea_Sender_Client {
 			`current_status` varchar(10) NOT NULL,
 			`bounce_cat` varchar(20) NOT NULL,
 			`bounce_type` varchar(20) NOT NULL,
-			`bounce_no` varchar(10) NOT NULL,
-			UNIQUE ( email )
+			`bounce_no` varchar(10) NOT NULL
 		) $charset_collate;" );
 
 		maybe_add_column( $wpdb->bea_s_receivers, 'bounce_cat', "ALTER TABLE $wpdb->bea_s_receivers ADD bounce_cat char(20)" );
