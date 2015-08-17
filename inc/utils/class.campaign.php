@@ -198,8 +198,8 @@ class Bea_Sender_Campaign {
 
 			// Mail trough the email class accepting the raw format
 			$mailed = Bea_Sender_Email::wpMail( $send->email, $this->subject, array(
-				'html' => self::contentReplace( $send->html, $send->email ),
-				'raw' => self::contentReplace( $send->text, $send->email )
+				'html' => self::contentReplace( $send, 'html' ),
+				'raw' => self::contentReplace( $send, 'text' ),
 			), array( 'campaign-id: '.$this->id."\n" ), $this->attachments );
 
 			if( !$mailed ) {
@@ -226,8 +226,16 @@ class Bea_Sender_Campaign {
 		);
 	}
 
-	private static function contentReplace( $content, $email ) {
-		return str_replace( '{email}', $email, $content );
+	/**
+	 * @param $send_data
+	 * @param $type
+	 *
+	 * @return mixed|void
+	 * @author Alexandre Sadowski
+	 */
+	private static function contentReplace( $send_data, $type ) {
+		$replaced = str_replace( '{email}', $send_data->email, $send_data->{$type} );
+		return apply_filters( "bea_sender_campaign_replace_content_{$type}", $replaced, $send_data );
 	}
 
 	private function getEmailsContents( ) {
@@ -238,7 +246,9 @@ class Bea_Sender_Campaign {
 				r.id as r_id,
 				r.email,
 				c.html,
-				c.text
+				c.text,
+				c.id as c_id,
+				reca.id_campaign as id_campaign
 			FROM $wpdb->bea_s_re_ca AS reca
 				JOIN $wpdb->bea_s_receivers AS r ON r.id = reca.id_receiver
 				JOIN $wpdb->bea_s_contents AS c ON reca.id_content = c.id
@@ -297,11 +307,12 @@ class Bea_Sender_Campaign {
 		$c_id = 0;
 		if( isset( $content_html ) && !empty( $content_html ) ) {
 			// New content and create it
-			$content = new Bea_Sender_Content( $content_html, $content_text );
-			$c_id = $content->create( );
-			if( $c_id === false ) {
+			$content = Bea_Sender_Content::create( $content_html, $content_text );
+			if( $content === false ) {
 				return false;
 			}
+
+			$c_id = $content->get_id();
 		}
 
 		// Handle the attachments
@@ -425,8 +436,11 @@ class Bea_Sender_Campaign {
 		// Link the content to the user simply if given otherwise create it
 		if( !isset( $c_id ) || (int)$c_id == 0 ) {
 			// Create the content
-			$content = new Bea_Sender_Content( $content_html, $content_text );
-			$c_id = $content->create( );
+			$content = Bea_Sender_Content::create( $content_html, $content_text );
+			if( false === $content ){
+				return false;
+			}
+			$c_id = $content->get_id();
 		}
 
 		// Link the receiver, the content and the campaign

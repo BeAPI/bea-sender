@@ -305,7 +305,7 @@ class Bea_Sender_Admin {
 	 */
 	public static function generate_campaign_csv() {
 
-		if ( ! isset( $_GET['action'] ) || $_GET['bea_export'] || ! isset( $_GET['nonce'] ) || ! isset( $_GET['c_id'] ) ) {
+		if ( ! isset( $_GET['action'] ) || isset( $_GET['bea_export'] ) || ! isset( $_GET['nonce'] ) || ! isset( $_GET['c_id'] ) ) {
 			return false;
 		}
 
