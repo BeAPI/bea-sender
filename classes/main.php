@@ -18,8 +18,8 @@ class Main {
 	public function __construct() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
 
-		add_action( 'generate_global_csv_event', array( __CLASS__, 'cron_buildCSV' ) );
-		add_action( 'generate_global_bounces_csv_event', array( __CLASS__, 'cron_buildCSV_Bounces' ) );
+		add_action( 'generate_global_csv_event', array( __CLASS__, 'cron_build_campaign_CSV' ) );
+		add_action( 'generate_global_bounces_csv_event', array( __CLASS__, 'cron_build_CSV_Bounces' ) );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Main {
 	 * @return bool
 	 * @author Zainoudine soulé
 	 */
-	public static function cron_buildCSV( $name = '' ) {
+	public static function cron_build_campaign_CSV( $name = '' ) {
 		$cron = new Cron\Campaign( $name );
 		$cron->process();
 	}
@@ -51,7 +51,7 @@ class Main {
 	 * @return bool
 	 * @author Zainoudine soulé
 	 */
-	public static function cron_buildCSV_Bounces( $name ) {
+	public static function cron_build_CSV_Bounces( $name ) {
 		$cron = new Cron\Bounce( $name );
 		$cron->process();
 	}
