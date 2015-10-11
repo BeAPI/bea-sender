@@ -84,10 +84,10 @@ class Campaigns_Single extends \WP_List_Table {
 				$value = $item->$column_name;
 			break;
 			case 'current_status' :
-				$value =  Main::getStatus( $item->current_status );
+				$value =  Main::get_status( $item->current_status );
 			break;
 			case 'campaign_status' :
-				$value =  Main::getStatus( $item->campaign_current_status );
+				$value =  Main::get_status( $item->campaign_current_status );
 			break;
 		}
 		return apply_filters( 'manage_'.$this->screen->id.'_single_custom_column', $value, $item, $column_name );

@@ -81,7 +81,7 @@ class Main {
 	 * @author Nicolas Juen
 	 *
 	 */
-	public static function getStatus( $slug ) {
+	public static function get_status( $slug ) {
 		$statuses = array(
 			'progress' => __( 'In progress', 'bea-sender' ),
 			'registered' => __( 'Registered', 'bea-sender' ),

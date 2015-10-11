@@ -55,7 +55,7 @@ class Campaigns extends \WP_List_Table {
 
 		$add = array( 'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea-sender' ), $base_url, self::current_view( 'all' ) ) );
 		foreach( Campaign::get_auth_statuses() as $status ) {
-			$add[$status] = sprintf( '<a href="%s" class="%s" >%s</a>', add_query_arg( array( 'current_status' => $status ), $base_url ), self::current_view( $status ), Main::getStatus( $status ) );
+			$add[$status] = sprintf( '<a href="%s" class="%s" >%s</a>', add_query_arg( array( 'current_status' => $status ), $base_url ), self::current_view( $status ), Main::get_status( $status ) );
 		}
 		return $add;
 	}
@@ -98,7 +98,7 @@ class Campaigns extends \WP_List_Table {
 				$value = self::getCampaignTodo( $item['id'] );
 				break;
 			case 'current_status' :
-				$value = Main::getStatus( $item[$column_name] );
+				$value = Main::get_status( $item[$column_name] );
 				break;
 			case 'success' :
 				$value = self::getCampaignSend( $item['id'] );
@@ -182,9 +182,9 @@ class Campaigns extends \WP_List_Table {
 			'from_name' => __( 'From name', 'bea-sender' ),
 			'subject' => __( 'Subject', 'bea-sender' ),
 			'todo' => __( 'Emails to send', 'bea-sender' ),
-			'success' => Main::getStatus( 'send' ),
-			'failed' => Main::getStatus( 'failed' ),
-			'bounced' => Main::getStatus( 'bounced' ),
+			'success' => Main::get_status( 'send' ),
+			'failed' => Main::get_status( 'failed' ),
+			'bounced' => Main::get_status( 'bounced' ),
 		);
 	}
 
