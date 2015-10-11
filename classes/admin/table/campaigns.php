@@ -380,7 +380,7 @@ class Campaigns extends \WP_List_Table {
 
 		$action = $this->current_action( );
 		if( empty( $action ) || !array_key_exists( $action, $this->get_bulk_actions( ) ) || !isset( $_GET['id'] ) || empty( $_GET['id'] ) ) {
-			add_settings_error( 'bea-sender', 'settings_updated', __( 'Oups! You probably forgot to tick campaigns to delete?', 'bea-sender' ), 'error' );
+			add_settings_error( 'bea-sender', 'settings_updated', __( 'Whoops! You probably forgot to tick campaigns to delete?', 'bea-sender' ), 'error' );
 			return false;
 		}
 
