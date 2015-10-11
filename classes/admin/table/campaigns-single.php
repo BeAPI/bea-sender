@@ -143,7 +143,7 @@ class Campaigns_Single extends \WP_List_Table {
 		$receivers = $campaign->get_receivers( $filter , '', $limit );
 		
 		// check there is data before
-		if( !$campaign->isData() ) {
+		if( !$campaign->is_data() ) {
 			return array();
 		}
 

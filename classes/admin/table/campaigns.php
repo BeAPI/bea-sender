@@ -54,7 +54,7 @@ class Campaigns extends \WP_List_Table {
 		$base_url = add_query_arg( array( 'page' => 'bea-sender' ), admin_url( 'tools.php' ) );
 
 		$add = array( 'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea-sender' ), $base_url, self::current_view( 'all' ) ) );
-		foreach( Campaign::getAuthStatuses() as $status ) {
+		foreach( Campaign::get_auth_statuses() as $status ) {
 			$add[$status] = sprintf( '<a href="%s" class="%s" >%s</a>', add_query_arg( array( 'current_status' => $status ), $base_url ), self::current_view( $status ), Main::getStatus( $status ) );
 		}
 		return $add;
@@ -315,7 +315,7 @@ class Campaigns extends \WP_List_Table {
 		 * @var $wpdb \wpdb
 		 */
 		global $wpdb;
-		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Campaign::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND c.current_status = %s', $_GET['current_status'] );
+		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], Campaign::get_auth_statuses( ) ) ? '' : $wpdb->prepare( ' AND c.current_status = %s', $_GET['current_status'] );
 	}
 
 	/**
@@ -394,10 +394,10 @@ class Campaigns extends \WP_List_Table {
 				foreach( $_GET['id'] as $c_id ) {
 					$result = 0;
 					$c = new Campaign( $c_id );
-					if( $c->isData( ) !== true ) {
+					if( $c->is_data( ) !== true ) {
 						$message_code = 0;
 					} else {
-						$result = $c->deleteCampaign( );
+						$result = $c->delete( );
 						$total += $result;
 						if( $result == 0 ) {
 							$message_code = 1;

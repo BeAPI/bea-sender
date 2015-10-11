@@ -71,7 +71,7 @@ class Main {
 	 */
 	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '', $attachments= array() ) {
 		$campaign = new Campaign( );
-		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text, $attachments );
+		$insert = $campaign->create( $data_campaign, $data, $content_html, $content_text, $attachments );
 		return $insert;
 	}
 

@@ -50,7 +50,7 @@ class Attachment {
 			return false;
 		}
 		
-		return $wpdb->update( $wpdb->bea_s_attachments, array( 'campaign_id' => $campaign->getID() ), array( 'id' => $this->id ), array( '%d' ), array( '%d' ) );
+		return $wpdb->update( $wpdb->bea_s_attachments, array( 'campaign_id' => $campaign->get_ID() ), array( 'id' => $this->id ), array( '%d' ), array( '%d' ) );
 	}
 
 	/**

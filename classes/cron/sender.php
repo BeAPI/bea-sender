@@ -69,13 +69,13 @@ class Sender extends Cron {
 		do_action( 'bea_sender_before_send' );
 		foreach( $this->campaigns as $campaign_id ) {
 			$campaign = new Campaign( $campaign_id );
-			if( $campaign->isData( ) !== true ) {
+			if( $campaign->is_data( ) !== true ) {
 				continue;
 			}
 			$this->add_log( sprintf( 'Send %s campaign', $campaign_id ) );
 			do_action( 'bea_sender_before_send_campaign', $campaign_id, $campaign );
 			// Make the sending
-			$results[] = $campaign->makeSend( );
+			$results[] = $campaign->make_send( );
 			do_action( 'bea_sender_after_send_campaign', $campaign_id, $campaign );
 
 		}

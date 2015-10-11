@@ -6,7 +6,7 @@ class Receivers {
 
 	public static function get_bounced( $args = array() ) {
 		/**
-		 * @var $wpdb wpdb
+		 * @var $wpdb \wpdb
 		 */
 		global $wpdb;
 
@@ -57,7 +57,7 @@ class Receivers {
 	 */
 	public static function purge_bounced( $args = array() ) {
 		/**
-		 * @var $wpdb wpdb
+		 * @var $wpdb \wpdb
 		 */
 		global $wpdb;
 
@@ -133,6 +133,5 @@ class Receivers {
 			 	OR
 			 	re_ca.id_receiver IN ( ".$ids." )
 		" );
-
 	}
 }

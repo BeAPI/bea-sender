@@ -30,6 +30,9 @@ class Content {
 	 * @author Alexandre Sadowski
 	 */
 	public static function create( $content_html, $content_text = '' ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 
 		if ( ! isset( $content_html ) || empty( $content_html ) ) {
@@ -72,6 +75,9 @@ class Content {
 	 * @author Alexandre Sadowski
 	 */
 	private function init() {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 
 		$data = $wpdb->get_row( $wpdb->prepare( "SELECT html, text FROM $wpdb->bea_s_contents WHERE id = %d ", $this->id ) );
@@ -91,6 +97,9 @@ class Content {
 	 * @author Alexandre Sadowski
 	 */
 	public function update( $content_html, $content_text = '' ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 		if ( 0 === $this->id ) {
 			return new WP_Error( 'not-found', __( 'Content not found in database', 'bea-sender' ) );

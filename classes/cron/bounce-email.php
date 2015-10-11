@@ -161,7 +161,7 @@ class Bounce_Email extends Cron {
 		}
 
 		// The query for update bea_s_re_ca table
-		$receiver_id   = Receiver::getReceiver( $email );
+		$receiver_id   = Receiver::get_receiver( $email );
 		$re_ca__result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_re_ca WHERE id_campaign = %s AND id_receiver = %s", $xheader, $receiver_id ) );
 
 		if ( $re_ca__result ) {

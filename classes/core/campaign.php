@@ -16,19 +16,39 @@ class Campaign {
 	// Data for sending
 	private $emailContents = array( );
 
+	/**
+	 * Is data for this campaign
+	 *
+	 * @var bool
+	 */
 	private $is_data = false;
 
+	/**
+	 * Authorized statuses
+	 *
+	 * @var array
+	 */
 	private static $auth_statuses = array(
 		'registered',
 		'progress',
 		'done'
 	);
 
+	/**
+	 * The receiversfor this campaign
+	 *
+	 * @var array
+	 */
 	private $receivers;
 
-	function __construct( $id = 0 ) {
+	/**
+	 * Id of the campaign
+	 *
+	 * @param int $id
+	 */
+	function __construct( $id ) {
 		// Init the object by getting informations from the database
-		return $this->setID( $id );
+		return $this->set_ID( $id );
 	}
 
 	/**
@@ -49,13 +69,13 @@ class Campaign {
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	private function setID( $id = 0 ) {
+	private function set_ID( $id = 0 ) {
 		if( !isset( $id ) || $id <= 0 ) {
 			return false;
 		}
 
 		$this->id = (int)$id;
-		$this->setupBasics( );
+		$this->setup( );
 
 		return $this->is_data === true ? $this->is_data : false;
 	}
@@ -64,7 +84,7 @@ class Campaign {
 	 * @return int
 	 * @author Nicolas Juen
 	 */
-	public function getID( ) {
+	public function get_ID( ) {
 		return (int)$this->id;
 	}
 
@@ -72,7 +92,7 @@ class Campaign {
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	public function isData( ) {
+	public function is_data( ) {
 		return (bool)$this->is_data;
 	}
 
@@ -80,7 +100,7 @@ class Campaign {
 	 * @return array
 	 * @author Nicolas Juen
 	 */
-	public static function getAuthStatuses( ) {
+	public static function get_auth_statuses( ) {
 		return self::$auth_statuses;
 	}
 
@@ -88,7 +108,10 @@ class Campaign {
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	private function setupBasics( ) {
+	private function setup( ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT `id`, `add_date`,`scheduled_from`, `current_status`, `from`, `from_name`, `subject` FROM $wpdb->bea_s_campaigns WHERE 1=1 AND id = %d", $this->id ) );
@@ -113,7 +136,7 @@ class Campaign {
 	 * @return array|bool
 	 * @author Nicolas Juen
 	 */
-	public function makeSend( ) {
+	public function make_send( ) {
 		global $bea_send_counter;
 
 		if( $bea_send_counter <= 0 ) {
@@ -123,11 +146,11 @@ class Campaign {
 			);
 		}
 
-		$ready = $this->setupSendingData( );
+		$ready = $this->setup_sending_data( );
 
 		if( empty( $ready ) ) {
 			// Make the status done when the campaign is done
-			$this->changeStatus( 'done' );
+			$this->change_status( 'done' );
 			return false;
 		}
 
@@ -138,10 +161,10 @@ class Campaign {
 	 * @return bool|int
 	 * @author Nicolas Juen
 	 */
-	public function deleteCampaign( ) {
+	public function delete( ) {
 		/* @var $wpdb \wpdb */
 		global $wpdb;
-		if( $this->id <= 0 || !$this->isData( ) ) {
+		if( $this->id <= 0 || !$this->is_data( ) ) {
 			return false;
 		}
 
@@ -170,22 +193,26 @@ class Campaign {
 	 * @return array|bool
 	 * @author Nicolas Juen
 	 */
-	private function setupSendingData( ) {
+	private function setup_sending_data( ) {
 		if( !isset( $this->id ) || empty( $this->id ) || !$this->is_data ) {
 			return false;
 		}
 		$this->attachments = $this->get_attachments( );
-		return $this->emailContents = $this->getEmailsContents( );
+		return $this->emailContents = $this->get_emails_contents( );
 	}
 
-
+	/**
+	 * Send the campaign data
+	 *
+	 * @return array
+	 */
 	private function send( ) {
 		global $bea_send_counter;
 		$counter = 0;
 		$failed = array( );
 
 		// Put the filters for the from name and the from
-		$this->addSendFilters( );
+		$this->add_send_filters( );
 
 		foreach( $this->emailContents as $send ) {
 			if( $bea_send_counter <= 0 ) {
@@ -200,27 +227,27 @@ class Campaign {
 
 			// Mail trough the email class accepting the raw format
 			$mailed = \Bea_Sender_Email::wpMail( $send->email, $this->subject, array(
-				'html' => self::contentReplace( $send, 'html' ),
-				'raw' => self::contentReplace( $send, 'text' ),
+				'html' => self::content_replace( $send, 'html' ),
+				'raw' => self::content_replace( $send, 'text' ),
 			), array( 'campaign-id: '.$this->id."\n" ), $this->attachments );
 
 			if( !$mailed ) {
 				$failed[] = $send->email;
-				$this->changeRecaStatus( $send->reca_id, 'failed' );
+				$this->change_reca_status( $send->reca_id, 'failed' );
 			} else {
-				$this->changeRecaStatus( $send->reca_id, 'send' );
+				$this->change_reca_status( $send->reca_id, 'send' );
 			}
 			$bea_send_counter--;
 		}
 
 		if( self::todo( ) <= 0 ) {
-			$this->changeStatus( 'done' );
+			$this->change_status( 'done' );
 		} else {
-			$this->changeStatus( 'progress' );
+			$this->change_status( 'progress' );
 		}
 
 		// Remove the filters
-		$this->removeSendFilters( );
+		$this->remove_send_filters( );
 
 		return array(
 			$failed,
@@ -235,12 +262,20 @@ class Campaign {
 	 * @return mixed|void
 	 * @author Alexandre Sadowski
 	 */
-	private static function contentReplace( $send_data, $type ) {
+	private static function content_replace( $send_data, $type ) {
 		$replaced = str_replace( '{email}', $send_data->email, $send_data->{$type} );
 		return apply_filters( "bea_sender_campaign_replace_content_{$type}", $replaced, $send_data );
 	}
 
-	private function getEmailsContents( ) {
+	/**
+	 * Get the email contents
+	 *
+	 * @return array|null|object
+	 */
+	private function get_emails_contents( ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb, $bea_send_counter;
 
 		$emails = $wpdb->get_results( $wpdb->prepare( "SELECT 
@@ -270,6 +305,9 @@ class Campaign {
 	 * @author Nicolas Juen
 	 */
 	private function get_attachments( ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 
 		$attachments = $wpdb->get_col( $wpdb->prepare( "SELECT
@@ -290,20 +328,18 @@ class Campaign {
 	 * @param string $content_text
 	 * @param array  $attachments
 	 *
-	 * @return array|bool
+	 * @return Campaign|bool
 	 * @author Nicolas Juen
 	 */
-	public function add( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '', $attachments = array() ) {
+	public static function create( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '', $attachments = array() ) {
 
 		// Add a campaign
-		$ca_id = $this->createCampaign( $data_campaign );
+		$ca = self::create_campaign( $data_campaign );
 
 		// Check added
-		if( !$ca_id ) {
+		if ( ! $ca ) {
 			return false;
 		}
-
-		$this->id = $ca_id;
 
 		// Init content Id
 		$c_id = 0;
@@ -326,22 +362,22 @@ class Campaign {
 
 				// Check the attachment
 				if( $att->create( ) !== false ) {
-					$this->add_attachment( $att );
+					$ca->add_attachment( $att );
 				}
 			}
 		}
 
 		// Return the addReceveivers data
-		return $this->addReceivers( $data, $c_id );
+		return $ca;
 	}
 
 	/**
 	 * @param array $data
 	 *
-	 * @return bool
+	 * @return bool|Campaign
 	 * @author Nicolas Juen
 	 */
-	private function createCampaign( $data = array() ) {
+	private static function create_campaign( $data = array() ) {
 		/* @var $wpdb \wpdb */
 		global $wpdb;
 
@@ -386,17 +422,17 @@ class Campaign {
 		) );
 
 		//Return inserted element
-		return $inserted !== false ? $wpdb->insert_id : false;
+		return $inserted !== false ? new Campaign( $wpdb->insert_id ) : false;
 	}
 
 	/**
 	 * @param array $receivers
-	 * @param int   $c_id
+	 * @param int   $content_id
 	 *
 	 * @return array
 	 * @author Nicolas Juen
 	 */
-	private function addReceivers( $receivers = array(), $c_id = 0 ) {
+	private function add_receivers( $receivers = array(), $content_id = 0 ) {
 		$result = array( );
 		foreach( $receivers as $receiver ) {
 
@@ -406,7 +442,7 @@ class Campaign {
 			$text = is_array( $receiver ) && isset( $receiver['text'] ) ? $receiver['text'] : '';
 
 			// Create the receiver
-			$receiver_added = $this->addReceiver( $email, $c_id, $html, $text );
+			$receiver_added = $this->add_receiver( $email, $content_id, $html, $text );
 
 			// if not added,linked and stuff then add email to the list
 			if( !$receiver_added ) {
@@ -419,46 +455,57 @@ class Campaign {
 
 	/**
 	 * @param string $email
-	 * @param int    $c_id
+	 * @param int    $content_id
 	 * @param string $content_html
 	 * @param string $content_text
 	 *
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	private function addReceiver( $email = '', $c_id = 0, $content_html = '', $content_text = '' ) {
+	private function add_receiver( $email = '', $content_id = 0, $content_html = '', $content_text = '' ) {
 		// Create the user and get the ID on database
 		$receiver = new Receiver( $email );
-		$r_id = $receiver->create( );
+		$receiver_id = $receiver->create( );
 
-		if( $r_id === false ) {
+		if( $receiver_id === false ) {
 			return false;
 		}
 
 		// Link the content to the user simply if given otherwise create it
-		if( !isset( $c_id ) || (int)$c_id == 0 ) {
+		if( !isset( $content_id ) || (int)$content_id == 0 ) {
 			// Create the content
 			$content = Content::create( $content_html, $content_text );
 			if( false === $content ){
 				return false;
 			}
-			$c_id = $content->get_id();
+			$content_id = $content->get_id();
 		}
 
 		// Link the receiver, the content and the campaign
-		return $this->linkReceiver( $c_id, $r_id );
+		return $this->link_receiver( $content_id, $receiver_id );
 	}
 
-	private function linkReceiver( $c_id, $r_id ) {
+	/**
+	 * Link a receivers to the campaign
+	 *
+	 * @param $content_id
+	 * @param $receiver_id
+	 *
+	 * @return bool
+	 */
+	private function link_receiver( $content_id, $receiver_id ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
-		if( !isset( $c_id ) || (int)$c_id <= 0 || !isset( $r_id ) || (int)$r_id <= 0 ) {
+		if( !isset( $content_id ) || (int)$content_id <= 0 || !isset( $receiver_id ) || (int)$receiver_id <= 0 ) {
 			return false;
 		}
 
 		$inserted = $wpdb->insert( $wpdb->bea_s_re_ca, array(
 			'id_campaign' => $this->id,
-			'id_receiver' => $r_id,
-			'id_content' => $c_id,
+			'id_receiver' => $receiver_id,
+			'id_content' => $content_id,
 			'current_status' => 'pending',
 			'response' => ''
 		) );
@@ -473,7 +520,7 @@ class Campaign {
 	 * @return mixed
 	 * @author Nicolas Juen
 	 */
-	private function changeRecaStatus( $id, $status ) {
+	private function change_reca_status( $id, $status ) {
 		/* @var $wpdb \wpdb */
 		global $wpdb;
 
@@ -489,7 +536,7 @@ class Campaign {
 	 * @return mixed
 	 * @author Nicolas Juen
 	 */
-	private function changeStatus( $status ) {
+	private function change_status( $status ) {
 		/* @var $wpdb \wpdb */
 		global $wpdb;
 
@@ -523,7 +570,7 @@ class Campaign {
 	/**
 	 * @author Nicolas Juen
 	 */
-	private function addSendFilters( ) {
+	private function add_send_filters( ) {
 		// Add filters for correct email send
 		add_filter( 'wp_mail_content_type', array(
 			&$this,
@@ -531,30 +578,30 @@ class Campaign {
 		) );
 		add_filter( 'wp_mail_from', array(
 			&$this,
-			'mailFrom'
+			'mail_from'
 		) );
 		add_filter( 'wp_mail_from_name', array(
 			&$this,
-			'mailFromName'
+			'mail_from_name'
 		) );
 	}
 
 	/**
 	 * @author Nicolas Juen
 	 */
-	private function removeSendFilters( ) {
+	private function remove_send_filters( ) {
 		// Remove filters
 		remove_filter( 'wp_mail_content_type', array(
-			&$this,
-			'returnHTML'
+			__CLASS__,
+			'return_html'
 		) );
 		remove_filter( 'wp_mail_from', array(
-			&$this,
-			'mailFrom'
+			$this,
+			'mail_from'
 		) );
 		remove_filter( 'wp_mail_from_name', array(
-			&$this,
-			'mailFromName'
+			$this,
+			'mail_from_name'
 		) );
 	}
 
@@ -562,7 +609,7 @@ class Campaign {
 	 * @return string
 	 * @author Nicolas Juen
 	 */
-	public function returnHtml( ) {
+	public static function return_html( ) {
 		return 'text/html';
 	}
 
@@ -571,7 +618,7 @@ class Campaign {
 	 *
 	 * @return string : email
 	 */
-	function mailFrom( ) {
+	public function mail_from( ) {
 		return $this->from;
 	}
 
@@ -581,7 +628,7 @@ class Campaign {
 	 * @return string
 	 * @author Edouard Labre
 	 */
-	function mailFromName( ) {
+	public function mail_from_name( ) {
 		return $this->from_name;
 	}
 

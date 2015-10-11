@@ -16,7 +16,7 @@ class Receiver {
 	 * @param $email
 	 */
 	function __construct( $email ) {
-		$this->setEmail( $email );
+		$this->set_email( $email );
 
 		return $this;
 	}
@@ -27,7 +27,10 @@ class Receiver {
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	public static function getReceiver( $email = '' ) {
+	public static function get_receiver( $email = '' ) {
+		/**
+		 * @var $wpdb \wpdb
+		 */
 		global $wpdb;
 		if ( empty( $email ) || ! is_email( $email ) ) {
 			return false;
@@ -43,7 +46,7 @@ class Receiver {
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	public function setEmail( $email ) {
+	public function set_email( $email ) {
 		if ( ! isset( $email ) || empty( $email ) || ! is_email( $email ) ) {
 			return false;
 		}
@@ -58,7 +61,7 @@ class Receiver {
 	 * @author Nicolas Juen
 	 */
 	public function set_receiver( $campaign_id = 0 ) {
-		$receiver = self::getReceiver( $this->email );
+		$receiver = self::get_receiver( $this->email );
 
 		if ( ! isset( $receiver ) || empty( $receiver ) ) {
 			return false;
@@ -143,7 +146,7 @@ class Receiver {
 		}
 
 		// Create the receiver
-		$this->createReceiver();
+		$this->create_receiver();
 
 		return $this->id;
 	}
@@ -152,12 +155,12 @@ class Receiver {
 	 * @return bool|false|int
 	 * @author Nicolas Juen
 	 */
-	private function createReceiver() {
+	private function create_receiver() {
 		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		// Try to get the receiver before
-		$receiver = self::getReceiver( $this->email );
+		$receiver = self::get_receiver( $this->email );
 
 		if ( ! $receiver ) {
 			// Insert the user
