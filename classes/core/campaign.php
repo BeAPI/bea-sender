@@ -142,7 +142,7 @@ class Campaign {
 		if( $bea_send_counter <= 0 ) {
 			return array(
 				0,
-				0
+				0,
 			);
 		}
 
@@ -223,6 +223,9 @@ class Campaign {
 				break;
 			}
 
+			/**
+			 * Loop counter
+			 */
 			$counter++;
 
 			// Mail trough the email class accepting the raw format
@@ -237,6 +240,10 @@ class Campaign {
 			} else {
 				$this->change_reca_status( $send->reca_id, 'send' );
 			}
+
+			/**
+			 * Total counter for global session send
+			 */
 			$bea_send_counter--;
 		}
 
@@ -251,7 +258,7 @@ class Campaign {
 
 		return array(
 			$failed,
-			$counter
+			$counter,
 		);
 	}
 
@@ -334,15 +341,15 @@ class Campaign {
 	public static function create( $data_campaign = array(), $data = array(), $content_html = '', $content_text = '', $attachments = array() ) {
 
 		// Add a campaign
-		$ca = self::create_campaign( $data_campaign );
+		$campaign = self::create_campaign( $data_campaign );
 
 		// Check added
-		if ( ! $ca ) {
+		if ( ! $campaign ) {
 			return false;
 		}
 
 		// Init content Id
-		$c_id = 0;
+		$content_id = 0;
 		if( isset( $content_html ) && !empty( $content_html ) ) {
 			// New content and create it
 			$content = Content::create( $content_html, $content_text );
@@ -350,7 +357,7 @@ class Campaign {
 				return false;
 			}
 
-			$c_id = $content->get_id();
+			$content_id = $content->get_id();
 		}
 
 		// Handle the attachments
@@ -362,13 +369,18 @@ class Campaign {
 
 				// Check the attachment
 				if( $att->create( ) !== false ) {
-					$ca->add_attachment( $att );
+					$campaign->add_attachment( $att );
 				}
 			}
 		}
 
-		// Return the addReceveivers data
-		return $ca;
+		/**
+		 * Add the receivers
+		 */
+		$campaign->add_receivers( $data, $content_id );
+
+		// Return the campaign
+		return $campaign;
 	}
 
 	/**
@@ -413,12 +425,12 @@ class Campaign {
 			'current_status' => 'registered',
 			'from_name' => $data['from_name'],
 			'from' => $data['from'],
-			'subject' => $data['subject']
+			'subject' => $data['subject'],
 		), array(
 			'%s',
 			'%s',
 			'%s',
-			'%s'
+			'%s',
 		) );
 
 		//Return inserted element
@@ -507,7 +519,7 @@ class Campaign {
 			'id_receiver' => $receiver_id,
 			'id_content' => $content_id,
 			'current_status' => 'pending',
-			'response' => ''
+			'response' => '',
 		) );
 
 		return $inserted !== false ? true : false;
@@ -573,15 +585,15 @@ class Campaign {
 	private function add_send_filters( ) {
 		// Add filters for correct email send
 		add_filter( 'wp_mail_content_type', array(
-			&$this,
-			'returnHTML'
+			__CLASS__,
+			'return_html'
 		) );
 		add_filter( 'wp_mail_from', array(
-			&$this,
+			$this,
 			'mail_from'
 		) );
 		add_filter( 'wp_mail_from_name', array(
-			&$this,
+			$this,
 			'mail_from_name'
 		) );
 	}
@@ -635,8 +647,9 @@ class Campaign {
 	/**
 	 * Getthe campaign receivers
 	 *
-	 * @param (array)$where : the where query to add
-	 * @param (array)$orderby : the where query to add
+	 * @param string $where : the where query to add
+	 * @param string $orderby : the where query to add
+	 * @param string $limit : the limit query to add
 	 * @return Receiver objects
 	 *
 	 */
@@ -677,8 +690,9 @@ class Campaign {
 	/**
 	 * Get the campaign total receivers
 	 *
-	 * @param (array)$where : the where query to add
-	 * @param (array)$orderby : the where query to add
+	 * @param string $where : the where query to add
+	 * @param string $orderby : the where query to add
+	 * @param string $limit : the limit query to add
 	 * @return Receiver objects
 	 *
 	 */
@@ -705,7 +719,7 @@ class Campaign {
 	/**
 	 * Link an attachment to the current campaign
 	 * 
-	 * @param Attachment : attahcment object
+	 * @param Attachment : attachment object
 	 * @return false|true
 	 * @author Nicolas Juen
 	 * 
@@ -717,7 +731,7 @@ class Campaign {
 	/**
 	 * Get a status emails counter
 	 * 
-	 * @param (string) : the status to count on
+	 * @param string $status the status to count on
 	 * @return int
 	 * @author Nicolas Juen
 	 * 
