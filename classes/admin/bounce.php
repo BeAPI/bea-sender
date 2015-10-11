@@ -1,5 +1,7 @@
 <?php
-class BEA_Admin_Settings_Main {
+namespace BEA\Sender\Admin;
+
+class Bounce {
 	static $settings_api;
 	static $id = 'bea_s-main';
 
@@ -11,7 +13,7 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public function __construct( ) {
-		self::$settings_api = new WeDevs_Settings_API( );
+		self::$settings_api = new \WeDevs_Settings_API( );
 
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
@@ -28,7 +30,7 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public static function admin_menu( ) {
-		add_options_page( __( 'BEA Send', 'bea_sender' ), __( 'BEA Send', 'bea_sender' ), 'manage_options', 'bea_s-settings', array( __CLASS__, 'render_page_settings' ) );
+		add_options_page( __( 'BEA Send', 'bea-sender' ), __( 'BEA Send', 'bea-sender' ), 'manage_options', 'bea_s-settings', array( __CLASS__, 'render_page_settings' ) );
 	}
 
 	/**
@@ -40,10 +42,10 @@ class BEA_Admin_Settings_Main {
 	 * @return mixed Value.
 	 */
 	public static function render_page_settings( ) {
-		if( is_file( BEA_SENDER_DIR.'/templates/admin-option-page.php' ) ) {
-			include ( BEA_SENDER_DIR.'/templates/admin-option-page.php' );
+		if( is_file( BEA_SENDER_DIR.'/views/admin/option-page.php' ) ) {
+			include ( BEA_SENDER_DIR.'/views/admin/option-page.php' );
 		} else {
-			_e( 'Missing template', 'bea_sender' );
+			_e( 'Missing template', 'bea-sender' );
 		}
 	}
 
@@ -67,8 +69,8 @@ class BEA_Admin_Settings_Main {
 	public static function get_settings_sections( ) {
 		$sections = array( array(
 				'id' => BEA_SENDER_OPTION_NAME,
-				'tab_label' => __( 'General', 'bea_sender' ),
-				'title' => __( 'Server settings', 'bea_sender' ),
+				'tab_label' => __( 'General', 'bea-sender' ),
+				'title' => __( 'Server settings', 'bea-sender' ),
 				'desc' => false,
 			) );
 		return $sections;
@@ -83,80 +85,80 @@ class BEA_Admin_Settings_Main {
 		$settings_fields = array( BEA_SENDER_OPTION_NAME => array(
 				array(
 					'name' => 'mailhost',
-					'label' => __( 'Mailhost:', 'bea_sender' ),
-					'desc' => __( 'Your mail server.', 'bea_sender' ),
+					'label' => __( 'Mailhost:', 'bea-sender' ),
+					'desc' => __( 'Your mail server.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'mailbox_username',
-					'label' => __( 'Mailbox Username:', 'bea_sender' ),
-					'desc' => __( 'Your mailbox username.', 'bea_sender' ),
+					'label' => __( 'Mailbox Username:', 'bea-sender' ),
+					'desc' => __( 'Your mailbox username.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'mailbox_password',
-					'label' => __( 'Mailbox Password:', 'bea_sender' ),
-					'desc' => __( 'Your mailbox password', 'bea_sender' ),
+					'label' => __( 'Mailbox Password:', 'bea-sender' ),
+					'desc' => __( 'Your mailbox password', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'port',
-					'label' => __( 'Port:', 'bea_sender' ),
-					'desc' => __( 'The port to access your mailbox, default is 143.', 'bea_sender' ),
+					'label' => __( 'Port:', 'bea-sender' ),
+					'desc' => __( 'The port to access your mailbox, default is 143.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'service',
-					'label' => __( 'Service:', 'bea_sender' ),
-					'desc' => __( 'The service to use (imap or pop3), default is imap.', 'bea_sender' ),
+					'label' => __( 'Service:', 'bea-sender' ),
+					'desc' => __( 'The service to use (imap or pop3), default is imap.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'service_option',
-					'label' => __( 'Service Option:', 'bea_sender' ),
-					'desc' => __( 'The service options (none, tls, notls, ssl, etc.), default is notls.', 'bea_sender' ),
+					'label' => __( 'Service Option:', 'bea-sender' ),
+					'desc' => __( 'The service options (none, tls, notls, ssl, etc.), default is notls.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'boxname',
-					'label' => __( 'Boxname:', 'bea_sender' ),
-					'desc' => __( 'The mailbox to access, default is INBOX.', 'bea_sender' ),
+					'label' => __( 'Boxname:', 'bea-sender' ),
+					'desc' => __( 'The mailbox to access, default is INBOX.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'movehard',
-					'label' => __( 'Move Hard:', 'bea_sender' ),
-					'desc' => __( 'Default is false.', 'bea_sender' ),
+					'label' => __( 'Move Hard:', 'bea-sender' ),
+					'desc' => __( 'Default is false.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'hardmailbox',
-					'label' => __( 'Hard Mail Box:', 'bea_sender' ),
-					'desc' => __( 'Default is INBOX.hard - NOTE: must start with INBOX.', 'bea_sender' ),
+					'label' => __( 'Hard Mail Box:', 'bea-sender' ),
+					'desc' => __( 'Default is INBOX.hard - NOTE: must start with INBOX.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'movesoft',
-					'label' => __( 'Move Soft:', 'bea_sender' ),
-					'desc' => __( 'Default is false.', 'bea_sender' ),
+					'label' => __( 'Move Soft:', 'bea-sender' ),
+					'desc' => __( 'Default is false.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 				array(
 					'name' => 'softmailbox',
-					'label' => __( 'Soft Mail Box:', 'bea_sender' ),
-					'desc' => __( 'Default is INBOX.soft - NOTE: must start with INBOX.', 'bea_sender' ),
+					'label' => __( 'Soft Mail Box:', 'bea-sender' ),
+					'desc' => __( 'Default is INBOX.soft - NOTE: must start with INBOX.', 'bea-sender' ),
 					'type' => 'text',
-					'default' => __( '', 'bea_sender' )
+					'default' => __( '', 'bea-sender' )
 				),
 			), );
 

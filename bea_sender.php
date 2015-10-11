@@ -29,69 +29,23 @@ define( 'BEA_SENDER_PPP', '10' );
 define( 'BEA_SENDER_DEFAULT_COUNTER', 100 );
 define( 'BEA_SENDER_OPTION_NAME', 'bea_s-main' );
 define( 'BEA_SENDER_EXPORT_OPTION_NAME', 'bea_s-export' );
+define( 'BEA_SENDER_MIN_PHP_VERSION', '5.3' );
 
-// Function for easy load files
-function _bea_sender_load_files($dir, $files, $prefix = '') {
-	foreach ($files as $file) {
-		if ( is_file($dir . $prefix . $file . ".php") ) {
-			require_once($dir . $prefix . $file . ".php");
-		}
-	}
+
+// Check PHP min version
+if ( version_compare( PHP_VERSION, BEA_SENDER_MIN_PHP_VERSION, '<' ) ) {
+	require_once( BEA_SENDER_DIR . 'compat.php' );
+
+	// possibly display a notice, trigger error
+	add_action( 'admin_init', array( 'BEA\Sender\Compatibility', 'admin_init' ) );
+
+	// stop execution of this file
+	return;
 }
-
-// Utils
-_bea_sender_load_files( BEA_SENDER_DIR . 'inc/utils/', array(
-	'email',
-	'campaign',
-	'content',
-	'attachment',
-	'receiver',
-	'sender',
-	'bounce.email',
-	'export',
-	'receivers'
-), 'class.' );
-
-// Admin
-if( is_admin( ) ) {
-
-	if( !class_exists( 'WP_List_Table' ) ) {
-		require (ABSPATH.'/wp-admin/includes/class-wp-list-table.php');
-	}
-
-	_bea_sender_load_files( BEA_SENDER_DIR . 'inc/', array( 'admin' ), 'class.' );
-	_bea_sender_load_files( BEA_SENDER_DIR . 'inc/utils/', array(
-		'admin.table',
-		'admin.table.single',
-		'admin.bounce.tools'
-	), 'class.' );
-
-}
-
-// Inc
-_bea_sender_load_files( BEA_SENDER_DIR . 'inc/', array(
-	'client',
-	'cron',
-), 'class.' );
-
-// Libs
-_bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/wordpress-settings-api/', array(
-	'settings-api',
-), 'class.' );
-
-_bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/php-bounce/', array(
-	'phpmailer-bmh',
-), 'class.' );
-
-_bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/', array(
-	'log',
-), 'class-' );
-
-
 
 // Create tables on activation
-register_activation_hook( __FILE__, array( 'Bea_Sender_Client', 'activation' ) );
-register_uninstall_hook( __FILE__, array( 'Bea_Sender_Client', 'uninstall' ) );
+register_activation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'activation' ) );
+register_deactivation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'deactivation' ) );
 
 add_action( 'plugins_loaded', 'Bea_sender_init' );
 

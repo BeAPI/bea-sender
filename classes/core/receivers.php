@@ -1,5 +1,7 @@
 <?php
-class Bea_Sender_Receivers {
+namespace BEA\Sender\Core;
+
+class Receivers {
 
 
 	public static function get_bounced( $args = array() ) {

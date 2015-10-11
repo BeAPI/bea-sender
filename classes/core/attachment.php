@@ -1,5 +1,7 @@
 <?php
-Class Bea_Sender_Attachment {
+namespace BEA\Sender\Core;
+
+class Attachment {
 
 	public $id = 0;
 	private $attachment_path;
@@ -7,7 +9,7 @@ Class Bea_Sender_Attachment {
 	/**
 	 * @param string $attachment_path
 	 */
-	function __construct( $attachment_path = '' ) {
+	function __construct( $attachment_path ) {
 		if( !isset( $attachment_path ) || empty( $attachment_path ) ) {
 			return false;
 		}
@@ -36,13 +38,13 @@ Class Bea_Sender_Attachment {
 	}
 
 	/**
-	 * @param Bea_Sender_Campaign $campaign
+	 * @param Campaign $campaign
 	 *
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	public function link_campaign( Bea_Sender_Campaign $campaign ) {
-		/* @var $wpdb wpdb */
+	public function link_campaign( Campaign $campaign ) {
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 		if( !isset( $this->id ) || empty( $this->id ) || !isset( $this->attachment_path ) || empty( $this->attachment_path ) ) {
 			return false;
@@ -70,7 +72,7 @@ Class Bea_Sender_Attachment {
 	 * @author Nicolas Juen
 	 */
 	private function create_attachment( ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		$inserted = $wpdb->insert( $wpdb->bea_s_attachments, array(

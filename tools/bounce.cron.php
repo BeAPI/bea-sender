@@ -38,7 +38,7 @@ while( !is_file( $bootstrap ) ) {
 }
 require_once( $bootstrap );
 
-$bounce = new Bea_Sender_BounceEmail();
-$bounce->bounce_init();
+$bounce = new \BEA\Sender\Cron\Bounce_Email();
+$bounce->process();
 
 die();

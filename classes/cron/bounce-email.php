@@ -1,32 +1,31 @@
 <?php
 
-class Bea_Sender_BounceEmail {
+namespace BEA\Sender\Cron;
+
+use BEA\Sender\Core\Receiver;
+use BEA\Sender\Cron;
+
+class Bounce_Email extends Cron {
 
 	private $bmh;
-	private static $locked = false;
-	private static $lock_file = '/lock-bounce.lock';
 
-	/**
-	 * Log for the bounces
-	 *
-	 * @var Bea_Log
-	 */
-	private $log;
+	protected $type = 'bounce-email';
 
 	public function __construct() {
-		$this->bmh = new BounceMailHandler();
-		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-bounce-cron' );
+		$this->bmh = new \BounceMailHandler();
 	}
 
-	public function bounce_init() {
+	public function process() {
 
 		// If we are already locked, stop the process
-		if ( !self::lock() ) {
-			return false;
+		if (  $this->is_locked() ) {
+			return;
 		}
 
+		$this->create_lock_file();
+
 		// Log start
-		$this->log->log_this( 'Start Bounce Cron' );
+		$this->add_log( 'Start Bounce Cron' );
 
 		// Ge teh user options
 		$options = get_option( 'bea_s-main' );
@@ -52,12 +51,12 @@ class Bea_Sender_BounceEmail {
 		// Check the basic options
 		if ( empty( $host['mailhost'] ) || empty( $host['mailbox_username'] ) || empty( $host['mailbox_password'] ) ) {
 			// Log
-			$this->log->log_this( 'Bounce stopped : mailhost,mailbox_username or mailbox_password empty' );
+			$this->add_log( 'Bounce stopped : mailhost,mailbox_username or mailbox_password empty' );
 
 			// Unlock the file
-			self::unlock();
+			$this->delete_lock_file();
 
-			return false;
+			return;
 		}
 
 
@@ -88,7 +87,7 @@ class Bea_Sender_BounceEmail {
 		// 'yyyy-mm-dd'
 
 		// Log
-		$this->log->log_this( 'Open the mailbox' );
+		$this->add_log( 'Open the mailbox' );
 
 		$this->bmh->openMailbox();
 		$this->bmh->action_function = array(
@@ -96,18 +95,18 @@ class Bea_Sender_BounceEmail {
 			'callback_action'
 		);
 
-		$this->log->log_this( 'Process mailbox' );
+		$this->add_log( 'Process mailbox' );
 		$this->bmh->processMailbox();
 
 
-		$this->log->log_this( 'Delete mailbox' );
+		$this->add_log( 'Delete mailbox' );
 		// Delete flag and do global deletes if true
 		$this->bmh->globalDelete();
 
 
-		$this->log->log_this( 'Process end' );
+		$this->add_log( 'Process end' );
 		// Unlock the file
-		self::unlock();
+		$this->delete_lock_file();
 	}
 
 	/* This is a sample callback function for PHPMailer-BMH (Bounce Mail Handler).
@@ -133,19 +132,19 @@ class Bea_Sender_BounceEmail {
 	 */
 
 	public function callback_action( $msgnum, $bounce_type, $email, $subject, $xheader, $remove, $rule_no = false, $rule_cat = false, $totalFetched = 0 ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		// Callback action
-		$this->log->log_this( sprintf( 'Callback action on message for %s', $email ) );
-		$this->log->log_this( sprintf( 'Email : %s | bounce_cat : %s | bounce_type : %s | bounce_no : %s', $email, $rule_cat, $bounce_type, $rule_no ) );
+		$this->add_log( sprintf( 'Callback action on message for %s', $email ) );
+		$this->add_log( sprintf( 'Email : %s | bounce_cat : %s | bounce_type : %s | bounce_no : %s', $email, $rule_cat, $bounce_type, $rule_no ) );
 
 		// The query for update bea_s_receivers table
 		$receiver_result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_receivers WHERE email = %s", $email ) );
 
 		// Update the receiver if possible
 		if ( $receiver_result ) {
-			$this->log->log_this( sprintf( '%s found on database', $email ) );
+			$this->add_log( sprintf( '%s found on database', $email ) );
 			$wpdb->update(
 				$wpdb->bea_s_receivers, array(
 					'current_status' => 'invalid',
@@ -162,11 +161,11 @@ class Bea_Sender_BounceEmail {
 		}
 
 		// The query for update bea_s_re_ca table
-		$receiver_id   = Bea_Sender_Receiver::getReceiver( $email );
+		$receiver_id   = Receiver::getReceiver( $email );
 		$re_ca__result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->bea_s_re_ca WHERE id_campaign = %s AND id_receiver = %s", $xheader, $receiver_id ) );
 
 		if ( $re_ca__result ) {
-			$this->log->log_this( sprintf( '%s found on the _re_ca table', $email ) );
+			$this->add_log( sprintf( '%s found on the _re_ca table', $email ) );
 			$wpdb->update(
 				$wpdb->bea_s_re_ca, array( 'current_status' => 'bounced' ), array(
 					'id_campaign' => $xheader,
@@ -180,53 +179,4 @@ class Bea_Sender_BounceEmail {
 
 		return true;
 	}
-
-	/**
-	 * Check if file is locked
-	 *
-	 * @return bool
-	 * @author Nicolas Juen
-	 */
-	public static function is_locked() {
-		return self::$locked;
-	}
-
-	/**
-	 * Lock or not the cron
-	 *
-	 * @return bool
-	 * @author Nicolas Juen
-	 */
-	private static function lock() {
-		clearstatcache();
-
-		if ( is_file( WP_CONTENT_DIR . self::$lock_file ) ) {
-			self::$locked = true;
-			return false;
-		}
-
-		// If we are already locked, stop now
-		if ( fopen( WP_CONTENT_DIR . self::$lock_file, "x" ) ) {
-			self::$locked = true;
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Unlock the cron
-	 *
-	 * @author Nicolas Juen
-	 */
-	private static function unlock() {
-		// Remove the file if needed
-		if ( is_file( WP_CONTENT_DIR . self::$lock_file ) ) {
-			unlink( WP_CONTENT_DIR . self::$lock_file );
-		}
-
-		// Unlock the file
-		self::$locked = false;
-	}
-
 }

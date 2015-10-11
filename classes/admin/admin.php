@@ -1,6 +1,12 @@
 <?php
 
-class Bea_Sender_Admin {
+namespace BEA\Sender\Admin;
+
+use BEA\Sender\Core\Receivers;
+use BEA\Sender\Export\Campaign;
+use BEA\Sender\Helpers;
+
+class Admin {
 	private $ListTable = null;
 	private $ListTableSingle = null;
 
@@ -14,11 +20,11 @@ class Bea_Sender_Admin {
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
 
 		// Init the WP_List_Table
-		add_action( 'load-tools_page_' . 'bea_sender', array( &$this, 'init_table' ), 2 );
+		add_action( 'load-tools_page_' . 'bea-sender', array( &$this, 'init_table' ), 2 );
 
 		// Screen options
 		add_filter( 'set-screen-option', array( __CLASS__, 'set_options' ), 1, 3 );
-		add_action( 'load-tools_page_' . 'bea_sender', array( __CLASS__, 'add_option_screen' ), 1 );
+		add_action( 'load-tools_page_' . 'bea-sender', array( __CLASS__, 'add_option_screen' ), 1 );
 
 		// CSV generation
 		add_action( 'admin_init', array( __CLASS__, 'generate_global_csv' ), 1 );
@@ -39,8 +45,8 @@ class Bea_Sender_Admin {
 	 * @author Amaury Balmer
 	 */
 	public function admin_menu() {
-		$title = ! isset( $_GET['c_id'] ) ? __( 'BEA Send', 'bea_sender' ) : __( 'BEA Send - Campaign', 'bea_sender' ) ;
-		$hook = add_management_page( $title, __( 'BEA Send', 'bea_sender' ), 'manage_options', 'bea_sender', array( &$this, 'pageManage' ) );
+		$title = ! isset( $_GET['c_id'] ) ? __( 'BEA Send', 'bea-sender' ) : __( 'BEA Send - Campaign', 'bea-sender' ) ;
+		$hook = add_management_page( $title, __( 'BEA Send', 'bea-sender' ), 'manage_options', 'bea-sender', array( &$this, 'pageManage' ) );
 
 		add_action( 'load-' . $hook, array( __CLASS__, 'admin_enqueue_scripts' ) );
 		add_action( "admin_footer-" . $hook, array( __CLASS__, 'admin_footer' ) );
@@ -51,9 +57,9 @@ class Bea_Sender_Admin {
 	 */
 	function init_table() {
 		if ( ! isset( $_GET['c_id'] ) ) {
-			$this->ListTable = new Bea_Sender_Admin_Table();
+			$this->ListTable = new Table\Campaigns();
 		} else {
-			$this->ListTableSingle = new Bea_Sender_Admin_Table_Single();
+			$this->ListTableSingle = new Table\Campaigns_Single();
 		}
 	}
 
@@ -161,7 +167,7 @@ class Bea_Sender_Admin {
 	 * @author Nicolas Juen
 	 */
 	public static function admin_footer() {
-		$file = BEA_SENDER_DIR.'/templates/admin-js.tpl';
+		$file = BEA_SENDER_DIR.'/views/admin/js.tpl';
 		if( !is_file( $file ) ) {
 			return;
 		}
@@ -178,7 +184,7 @@ class Bea_Sender_Admin {
 	public static function add_option_screen() {
 		$option = 'per_page';
 		$args   = array(
-			'label'   => __( 'Campaigns', 'bea_sender' ),
+			'label'   => __( 'Campaigns', 'bea-sender' ),
 			'default' => BEA_SENDER_PPP,
 			'option'  => 'bea_s_per_page'
 		);
@@ -216,18 +222,18 @@ class Bea_Sender_Admin {
 
 			switch( $message_code ) {
 				case 0 :
-					add_settings_error( 'bea_sender', 'settings_updated', __( 'Internal error', 'bea_sender' ), 'error' );
+					add_settings_error( 'bea-sender', 'settings_updated', __( 'Internal error', 'bea-sender' ), 'error' );
 				break;
 				case 1 :
-					add_settings_error( 'bea_sender', 'settings_updated', __( 'No results', 'bea_sender' ), 'updated' );
+					add_settings_error( 'bea-sender', 'settings_updated', __( 'No results', 'bea-sender' ), 'updated' );
 				break;
 				case 2 :
 					$result = isset( $_GET['message-value'] ) ? $_GET['message-value'] : 0;
-					add_settings_error( 'bea_sender', 'settings_updated', sprintf( _n( '%d line deleted', '%d lines deleted', $result , 'bea_sender' ), $result ), 'updated' );
+					add_settings_error( 'bea-sender', 'settings_updated', sprintf( _n( '%d line deleted', '%d lines deleted', $result , 'bea-sender' ), $result ), 'updated' );
 				break;
 				case 3 :
 					$result = isset( $_GET['message-value'] ) ? $_GET['message-value'] : 0;
-					add_settings_error( 'bea_sender', 'settings_updated', sprintf( _n( '%d line purged', '%d lines purged', $result, 'bea_sender' ), $result ), 'updated' );
+					add_settings_error( 'bea-sender', 'settings_updated', sprintf( _n( '%d line purged', '%d lines purged', $result, 'bea-sender' ), $result ), 'updated' );
 				break;
 			}
 		}
@@ -235,7 +241,7 @@ class Bea_Sender_Admin {
 		$export_options = get_option( BEA_SENDER_EXPORT_OPTION_NAME, array() );
 
 		// Include right file
-		$file = ! isset( $_GET['c_id'] ) ? BEA_SENDER_DIR . '/templates/admin-table.php' : BEA_SENDER_DIR . '/templates/admin-campaign-single.php';
+		$file = ! isset( $_GET['c_id'] ) ? BEA_SENDER_DIR . '/views/admin/table-campaign.php' : BEA_SENDER_DIR . '/templates/table-campaign-single.php';
 
 		// Check the file
 		if ( ! is_file( $file ) ) {
@@ -272,7 +278,7 @@ class Bea_Sender_Admin {
 	 * @author Salah Khouildi
 	 */
 	private static function generate_csv( $campaign_id = 0 ) {
-		$list = Bea_Sender_Export::export_campaign( $campaign_id );
+		$list = Campaign::export_campaign( $campaign_id );
 		header( "Pragma: public" );
 		header( "Expires: 0" );
 		header( "Cache-Control: private" );
@@ -287,7 +293,7 @@ class Bea_Sender_Admin {
 
 		$outstream = fopen( "php://output", 'w' );
 		//Put header titles
-		fputcsv( $outstream, array_map( 'utf8_decode', Bea_Sender_Export::get_header_titles( $campaign_id ) ), ';' );
+		fputcsv( $outstream, array_map( 'utf8_decode', Campaign::get_header_titles( $campaign_id ) ), ';' );
 		// Put lines in csv file
 		foreach ( $list as $fields ) {
 			fputcsv( $outstream, array_map( 'utf8_decode', $fields ), ';' );
@@ -306,11 +312,11 @@ class Bea_Sender_Admin {
 	public static function generate_campaign_csv() {
 
 		if ( ! isset( $_GET['action'] ) || isset( $_GET['bea_export'] ) || ! isset( $_GET['nonce'] ) || ! isset( $_GET['c_id'] ) ) {
-			return false;
+			return;
 		}
 
 		if ( ! wp_verify_nonce( $_GET['nonce'], 'bea-sender-export-' . $_GET['c_id'] ) ) {
-			wp_die( __( 'Are you sure you want to do this ?', 'bea_sender' ) );
+			wp_die( __( 'Are you sure you want to do this ?', 'bea-sender' ) );
 		}
 
 		// Generate the csv file
@@ -349,7 +355,7 @@ class Bea_Sender_Admin {
 
 		wp_schedule_single_event( time(), $scheduled_event, array( $type ) );
 
-		wp_send_json( array( 'status' => 'success', 'message' => __( 'File creation requested', 'bea_sender' ) ) );
+		wp_send_json( array( 'status' => 'success', 'message' => __( 'File creation requested', 'bea-sender' ) ) );
 	}
 
 	/**
@@ -372,14 +378,15 @@ class Bea_Sender_Admin {
 				break;
 		}
 		if ( ! wp_verify_nonce( $nonce, $nonce_name ) ) {
-			wp_send_json( array( 'status' => 'error', 'message' => __( 'Cheater', 'bea_sender' ) ) );
+			wp_send_json( array( 'status' => 'error', 'message' => __( 'Cheater', 'bea-sender' ) ) );
 		}
 
-		$scheduled = Bea_Sender_Cron::wp_get_schedule( $scheduled_event, array( $type ) );
+		$scheduled = Helpers::wp_get_schedule( $scheduled_event, array( $type ) );
 
 		if ( false === Bea_Sender_Cron::is_locked( $type ) && false === $scheduled ) {
-			wp_send_json( array( 'status' => 'error', 'message' => __( 'File not found !', 'bea_sender' ) ) );
+			wp_send_json( array( 'status' => 'error', 'message' => __( 'File not found !', 'bea-sender' ) ) );
 		}
+
 		// The upload dir
 		$upload_dir = wp_upload_dir();
 		$csv_file = self::get_file_path( $type );
@@ -396,9 +403,9 @@ class Bea_Sender_Admin {
 
 			// Save new option
 			update_option( BEA_SENDER_EXPORT_OPTION_NAME, $options );
-			wp_send_json( array( 'status' => 'success', 'finished' => true, 'message' => __( sprintf( 'You can <a href="%s">download</a> your file.', $options[$type]['url'] ), 'bea_sender' ) ) );
+			wp_send_json( array( 'status' => 'success', 'finished' => true, 'message' => __( sprintf( 'You can <a href="%s">download</a> your file.', $options[$type]['url'] ), 'bea-sender' ) ) );
 		} else {
-			wp_send_json( array( 'status' => 'success', 'finished' => false, 'message' => __( sprintf( 'File currently being created. last verification : %s' , date_i18n( 'd/m/Y  H:i:s' ) ), 'bea_sender' ) ) );
+			wp_send_json( array( 'status' => 'success', 'finished' => false, 'message' => __( sprintf( 'File currently being created. last verification : %s' , date_i18n( 'd/m/Y  H:i:s' ) ), 'bea-sender' ) ) );
 		}
 
 	}
@@ -429,11 +436,11 @@ class Bea_Sender_Admin {
 		$from = isset( $_POST['date_from'] ) && strtotime( $_POST['date_from'] ) !== false ? $_POST['date_from'] : false ;
 		$to = isset( $_POST['date_to'] ) && strtotime( $_POST['date_to'] ) !== false ? $_POST['date_to'] : false ;
 
-		$purged = Bea_Sender_Receivers::purge_bounced( array( 'from' => $from, 'to' => $to ) );
+		$purged = Receivers::purge_bounced( array( 'from' => $from, 'to' => $to ) );
 
 		wp_safe_redirect( add_query_arg(
 			array(
-				'page' => 'bea_sender',
+				'page' => 'bea-sender',
 				'message-code' => 3,
 				'message-value' => $purged
 			),

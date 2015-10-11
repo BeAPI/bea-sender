@@ -1,49 +1,18 @@
 <?php
-class Bea_Sender_Client {
+namespace BEA\Sender;
 
-	function __construct( ) {
-		add_action( 'init', array( __CLASS__, 'init' ) );
-	}
-	
-	/**
-	 * Add given data to the campaign
-	 * 
-	 * @param (array)$data_campaign : the campaign datas
-	 * @param (array)$data : the emails to do
-	 * @param (string)$content_html : the html content to use
-	 * @param (string)$content_text : (optional) the raw content to use on this emailing
-	 * 
-	 * @return boolean
-	 * 
-	 * @author Nicolas Juen
-	 * 
-	 */
-	public static function registerCampaign( $data_campaign, $data, $content_html, $content_text = '', $attachments= array() ) {
-		$campaign = new Bea_Sender_Campaign( );
-		$insert = $campaign->add( $data_campaign, $data, $content_html, $content_text, $attachments );
-		return $insert;
-	}
-	
-	/**
-	 * Load the translation
-	 * 
-	 * @param void
-	 * @return void
-	 * @author Nicolas Juen
-	 */
-	public static function init() {
-		load_plugin_textdomain( 'bea_sender', false, basename( BEA_SENDER_DIR ) . '/languages' );
-	}
-
-	/**
-	 * Create the tables if needed
-	 *
-	 * @param void
-	 * @return void
-	 * @author Nicolas Juen
-	 */
-	public static function activation( ) {
-		/* @var $wpdb wpdb */
+/**
+ * The purpose of the plugin class is to have the methods for
+ *  - activation actions
+ *  - deactivation actions
+ *  - uninstall actions
+ *
+ * Class Plugin
+ * @package BEA\Sender
+ */
+class Plugin {
+	public static function activate() {
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		// Charset
@@ -67,7 +36,7 @@ class Bea_Sender_Client {
 			`from` varchar(255) NOT NULL,
 			`subject` text NOT NULL
 		) $charset_collate;" );
-		
+
 		add_clean_index( $wpdb->bea_s_campaigns, 'id' );
 		add_clean_index( $wpdb->bea_s_campaigns, 'current_status' );
 
@@ -108,7 +77,7 @@ class Bea_Sender_Client {
 			`text` longtext NOT NULL
 		) $charset_collate;" );
 		add_clean_index( $wpdb->bea_s_contents, 'id' );
-		
+
 		// Attachment Table
 		maybe_create_table( $wpdb->bea_s_attachments, "CREATE TABLE ".$wpdb->bea_s_attachments." (
 			`id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -118,58 +87,9 @@ class Bea_Sender_Client {
 		add_clean_index( $wpdb->bea_s_attachments, 'id' );
 		add_clean_index( $wpdb->bea_s_attachments, 'campaign_id' );
 	}
-	
-	/**
-	 * When uninstall the plugin
-	 * Delete option and tables
-	 * 
-	 * @param void
-	 * @return void
-	 * @author Nicolas Juen
-	 * 
-	 */
-	public static function uninstall() {
-		/* @var $wpdb wpdb */
-		global $wpdb;
-		
-		// Security
-		if ( ! current_user_can( 'activate_plugins' ) ) {
-			return;
-		}
-		
-		check_admin_referer( 'bulk-plugins' );
-		
-		// Drop the tables
-		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_campaigns");
-		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_receivers");
-		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_re_ca");
-		$wpdb->query("DROP TABLE IF EXISTS $wpdb->bea_s_contents");
-		
-		// Remove the options
-		delete_option( BEA_SENDER_OPTION_NAME );
-	}
-	
-	/**
-	 * Get a status given all available
-	 * 
-	 * @param (string)$slug : the status slug
-	 * @return (sting): translated string
-	 * @author Nicolas Juen
-	 * 
-	 */
-	public static function getStatus( $slug ) {
-		$statuses = array(
-			'progress' => __( 'In progress', 'bea_sender' ),
-			'registered' => __( 'Registered', 'bea_sender' ),
-			'done' => __( 'Done', 'bea_sender' ),
-			'send' => __( 'Sent', 'bea_sender' ),
-			'pending' => __( 'Pending', 'bea_sender' ),
-			'valid' => __( 'Valid', 'bea_sender' ),
-			'bounced' => __( 'Bounced', 'bea_sender' ),
-			'failed' => __( 'Failed', 'bea_sender' ),
-			'invalid' => __( 'Invalid', 'bea_sender' ),
-		);
-		return isset( $statuses[$slug] ) ? $statuses[$slug] : $slug;
-	}
 
+	public static function deactivate() {
+		wp_clear_scheduled_hook( 'generate_global_csv_event' );
+		wp_clear_scheduled_hook( 'generate_global_bounces_csv_event' );
+	}
 }

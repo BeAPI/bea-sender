@@ -1,6 +1,7 @@
 <?php
+namespace BEA\Sender\Core;
 
-class Bea_Sender_Receiver {
+class Receiver {
 	private $email = '';
 	private $id = 0;
 	private $current_status = '';
@@ -77,7 +78,7 @@ class Bea_Sender_Receiver {
 	 * @author Nicolas Juen
 	 */
 	private function setup_receiver( $campaign_id = 0 ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		if ( (int) $campaign_id <= 0 ) {
@@ -108,7 +109,7 @@ class Bea_Sender_Receiver {
 	 * @author Nicolas Juen
 	 */
 	public function get_contents_campaign( $campaign_id = 0 ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		$data = $wpdb->get_row( $wpdb->prepare( "SELECT 
@@ -127,7 +128,7 @@ class Bea_Sender_Receiver {
 		}
 
 		// Setup object
-		$this->content = new Bea_Sender_Content( $data->id );
+		$this->content = new Content( $data->id );
 
 		return true;
 	}
@@ -152,7 +153,7 @@ class Bea_Sender_Receiver {
 	 * @author Nicolas Juen
 	 */
 	private function createReceiver() {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 
 		// Try to get the receiver before

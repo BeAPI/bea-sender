@@ -1,6 +1,7 @@
 <?php
+namespace BEA\Sender\Core;
 
-Class Bea_Sender_Content {
+class Content {
 
 	private $id = 0;
 	private $content_html = '';
@@ -25,7 +26,7 @@ Class Bea_Sender_Content {
 	 * @param $content_html
 	 * @param string $content_text
 	 *
-	 * @return Bea_Sender_Content|bool
+	 * @return Content|bool
 	 * @author Alexandre Sadowski
 	 */
 	public static function create( $content_html, $content_text = '' ) {
@@ -92,7 +93,7 @@ Class Bea_Sender_Content {
 	public function update( $content_html, $content_text = '' ) {
 		global $wpdb;
 		if ( 0 === $this->id ) {
-			return new WP_Error( 'not-found', __( 'Content not found in database', 'bea_sender' ) );
+			return new WP_Error( 'not-found', __( 'Content not found in database', 'bea-sender' ) );
 		}
 
 		if ( ! isset( $content_html ) || empty( $content_html ) ) {

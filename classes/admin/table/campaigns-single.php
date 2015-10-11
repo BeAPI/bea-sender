@@ -1,5 +1,10 @@
 <?php
-class Bea_Sender_Admin_Table_Single extends WP_List_Table {
+namespace BEA\Sender\Admin\Table;
+
+use BEA\Sender\Core\Campaign;
+use BEA\Sender\Main;
+
+class Campaigns_Single extends \WP_List_Table {
 	/**
 	 * Constructor
 	 *
@@ -18,12 +23,12 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function get_views( ) {
-		$base_url = add_query_arg( array( 'page' => 'bea_sender', 'c_id' => isset( $_GET['c_id'] ) ? $_GET['c_id'] : 0 ), admin_url( 'tools.php' ) );
+		$base_url = add_query_arg( array( 'page' => 'bea-sender', 'c_id' => isset( $_GET['c_id'] ) ? $_GET['c_id'] : 0 ), admin_url( 'tools.php' ) );
 
 		$add = array(
-			'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea_sender' ), $base_url, self::current_view( 'all' ) ),
-			'invalid' => sprintf( __( '<a href="%s" class="%s" >Bounced</a>', 'bea_sender' ), add_query_arg( array( 'current_status' => 'invalid' ), $base_url ), self::current_view( 'invalid' ) ),
-			'valid' => sprintf( __( '<a href="%s" class="%s" >Valid</a>', 'bea_sender' ), add_query_arg( array( 'current_status' => 'valid' ), $base_url ), self::current_view( 'valid' ) ),
+			'all' => sprintf( __( '<a href="%s" class="%s" >All</a>', 'bea-sender' ), $base_url, self::current_view( 'all' ) ),
+			'invalid' => sprintf( __( '<a href="%s" class="%s" >Bounced</a>', 'bea-sender' ), add_query_arg( array( 'current_status' => 'invalid' ), $base_url ), self::current_view( 'invalid' ) ),
+			'valid' => sprintf( __( '<a href="%s" class="%s" >Valid</a>', 'bea-sender' ), add_query_arg( array( 'current_status' => 'valid' ), $base_url ), self::current_view( 'valid' ) ),
 		);
 
 		return $add;
@@ -59,7 +64,7 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function no_items( ) {
-		_e( 'No sender found.', 'bea_sender' );
+		_e( 'No sender found.', 'bea-sender' );
 	}
 
 	/**
@@ -79,10 +84,10 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 				$value = $item->$column_name;
 			break;
 			case 'current_status' :
-				$value =  Bea_Sender_Client::getStatus( $item->current_status );
+				$value =  Main::getStatus( $item->current_status );
 			break;
 			case 'campaign_status' :
-				$value =  Bea_Sender_Client::getStatus( $item->campaign_current_status );
+				$value =  Main::getStatus( $item->campaign_current_status );
 			break;
 		}
 		return apply_filters( 'manage_'.$this->screen->id.'_single_custom_column', $value, $item, $column_name );
@@ -105,13 +110,13 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 */
 	function get_columns( ) {
 		return array(
-			'id' => __( 'ID', 'bea_sender' ),
-			'email' => __( 'Email', 'bea_sender' ),
-			'current_status' => __( 'Sender status', 'bea_sender' ),
-			'campaign_status' => __( 'Sender campaign status', 'bea_sender' ),
-			'bounce_cat' => __( 'Bounce cat', 'bea_sender' ),
-			'bounce_type' => __( 'Bounce type', 'bea_sender' ),
-			'bounce_no' => __( 'Bounce number', 'bea_sender' ),
+			'id' => __( 'ID', 'bea-sender' ),
+			'email' => __( 'Email', 'bea-sender' ),
+			'current_status' => __( 'Sender status', 'bea-sender' ),
+			'campaign_status' => __( 'Sender campaign status', 'bea-sender' ),
+			'bounce_cat' => __( 'Bounce cat', 'bea-sender' ),
+			'bounce_type' => __( 'Bounce type', 'bea-sender' ),
+			'bounce_no' => __( 'Bounce number', 'bea-sender' ),
 		);
 	}
 
@@ -122,11 +127,11 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function prepareQuery( ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 		
 		// Setup the campaign
-		$campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
+		$campaign = new Campaign( (int)$_GET['c_id'] );
 
 		// Make the order
 		$limit = $wpdb->prepare( ' LIMIT %d,%d', ( $this->get_pagenum( ) == 1 ? 0 : $this->get_pagenum( )-1 ) *$this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ), $this->get_items_per_page( 'bea_s_per_page', BEA_SENDER_PPP ) );
@@ -152,11 +157,11 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	function totalItems( ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 		$filter = self::get_status_filter( );
 		// Setup the campaign
-		$campaign = new Bea_Sender_Campaign( (int)$_GET['c_id'] );
+		$campaign = new Campaign( (int)$_GET['c_id'] );
 		
 		// Get the receivers
 		return $campaign->get_total_receivers( $filter );
@@ -167,7 +172,7 @@ class Bea_Sender_Admin_Table_Single extends WP_List_Table {
 	 * @author Nicolas Juen
 	 */
 	private static function get_status_filter( ) {
-		/* @var $wpdb wpdb */
+		/* @var $wpdb \wpdb */
 		global $wpdb;
 		return !isset( $_GET['current_status'] ) || empty( $_GET['current_status'] ) || !in_array( $_GET['current_status'], self::getAuthStatuses( ) ) ? '' : $wpdb->prepare( ' AND r.current_status = %s', $_GET['current_status'] );
 	}

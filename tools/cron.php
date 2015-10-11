@@ -30,7 +30,7 @@ define('MULTISITE', false);
 
 require( dirname(__FILE__) . '/../../../../wp-load.php' );
 
-$sender = new Bea_Sender_Sender();
-$sender->init();
+$sender = new \BEA\Sender\Cron\Sender();
+$sender->process();
 
 die();
