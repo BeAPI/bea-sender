@@ -10,6 +10,9 @@
 
 // Database declarations
 global $wpdb;
+use BEA\Sender\Admin\Admin;
+use BEA\Sender\Main;
+
 $wpdb->bea_s_campaigns = $wpdb->prefix.'bea_s_campaigns';
 $wpdb->bea_s_receivers = $wpdb->prefix.'bea_s_receivers';
 $wpdb->bea_s_re_ca = $wpdb->prefix.'bea_s_re_ca';
@@ -43,23 +46,29 @@ if ( version_compare( PHP_VERSION, BEA_SENDER_MIN_PHP_VERSION, '<' ) ) {
 	return;
 }
 
+/**
+ * Autoload all the things \o/
+ */
+require_once BEA_SENDER_DIR . 'autoload.php';
+require_once BEA_SENDER_DIR . 'vendor/php-bounce/class.phpmailer-bmh.php';
+require_once BEA_SENDER_DIR . 'vendor/wordpress-settings-api/class.settings-api.php';
+
 // Create tables on activation
-register_activation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'activation' ) );
-register_deactivation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'deactivation' ) );
+register_activation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'activate' ) );
+register_deactivation_hook( __FILE__, array( '\BEA\Sender\Plugin', 'deactivate' ) );
 
 add_action( 'plugins_loaded', 'Bea_sender_init' );
 
 function Bea_sender_init( ) {
-	global $bea_sender, $bea_send_counter;
+	global $bea_send_counter;
 
 	$bea_send_counter = apply_filters( 'bea_send_counter', BEA_SENDER_DEFAULT_COUNTER );
-	$bea_sender['client'] = new Bea_Sender_Client( );
-	new Bea_Sender_Cron();
+	new BEA\Sender\Main();
 
 	if( is_admin( ) ) {
-		$bea_sender['admin'] = new Bea_Sender_Admin( );
-		$bea_sender['admin_bounce_tools'] = new BEA_Admin_Settings_Main( );
+		new Admin();
+		new BEA\Sender\Admin\Bounce();
 	}
 
-	add_action( 'bea_sender_register_send', array( $bea_sender['client'], 'registerCampaign' ), 99, 4 );
+	add_action( 'bea_sender_register_send', array( '\BEA\Sender\Main', 'registerCampaign' ), 99, 4 );
 }
