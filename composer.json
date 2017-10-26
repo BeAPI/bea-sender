@@ -1,0 +1,13 @@
+{
+  "name": "bea/sender",
+  "description": "Email sender registrer for WordPress",
+  "minimum-stability": "stable",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Nicolas JUEN",
+      "email": "njuen@beapi.fr"
+    }
+  ],
+  "type" : "wordpress-plugin"
+}
