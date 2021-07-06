@@ -28,7 +28,7 @@ $_SERVER = array(
 define('WP_ALLOW_MULTISITE', false);
 define('MULTISITE', false);
 
-require( dirname(__FILE__) . '/../../../../wp-load.php' );
+require( dirname(__FILE__) . '/../../../../wp-config.php' );
 
 $sender = new Bea_Sender_Sender();
 $sender->init();
