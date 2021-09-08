@@ -65,7 +65,6 @@ if( is_admin( ) ) {
 		'admin.table.single',
 		'admin.bounce.tools'
 	), 'class.' );
-
 }
 
 // Inc
@@ -87,8 +86,6 @@ _bea_sender_load_files( BEA_SENDER_DIR . 'inc/libs/', array(
 	'log',
 ), 'class-' );
 
-
-
 // Create tables on activation
 register_activation_hook( __FILE__, array( 'Bea_Sender_Client', 'activation' ) );
 register_uninstall_hook( __FILE__, array( 'Bea_Sender_Client', 'uninstall' ) );
@@ -105,6 +102,14 @@ function Bea_sender_init( ) {
 	if( is_admin( ) ) {
 		$bea_sender['admin'] = new Bea_Sender_Admin( );
 		$bea_sender['admin_bounce_tools'] = new BEA_Admin_Settings_Main( );
+	}
+
+	if ( defined( 'WP_CLI' ) ) {
+		_bea_sender_load_files( BEA_SENDER_DIR . 'inc/cli/', array(
+			'sender-command',
+		), 'class.' );
+
+		\WP_CLI::add_command( 'bea-sender-mail', Bea_Sender_Command::class );
 	}
 
 	add_action( 'bea_sender_register_send', array( $bea_sender['client'], 'registerCampaign' ), 99, 4 );
