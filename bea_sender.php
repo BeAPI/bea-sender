@@ -5,7 +5,7 @@
  Author: BeApi
  Domain Path: /languages/
  Text Domain: bea_sender
- Version: 1.3.2
+ Version: 1.4.0
  */
 
 // Database declarations
