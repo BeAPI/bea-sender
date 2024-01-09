@@ -36,7 +36,7 @@ class Bea_Sender_Command extends \WP_CLI_Command {
 		$sender = $sender->init();
 
 		if ( empty( $sender ) ) {
-			\WP_CLI::info( sprintf( 'No campaign to send. You can see more with log : %s', WP_CONTENT_DIR . '/bea-sender-email-cron' ) );
+			\WP_CLI::log( sprintf( 'No campaign to send. You can see more with log : %s', WP_CONTENT_DIR . '/bea-sender-email-cron' ) );
 			return;
 		}
 
