@@ -7,6 +7,10 @@ Email sender registrer for WordPress
 
 ## Changelog
 
+### 1.4.1
+
+* Fix : replace WP_CLI::info() by WP_CLI::log()
+
 ### 1.4.0
 
 * Added: Create a wp-cli command to replace the tools/cron.php
