@@ -7,9 +7,13 @@ Email sender registrer for WordPress
 
 ## Changelog
 
+### 1.4.2
+
+* Update: update the class.phpmailer-bmh.php and the class.settings-api.php libraries 
+
 ### 1.4.1
 
-* Fix : replace WP_CLI::info() by WP_CLI::log()
+* Fix: replace WP_CLI::info() by WP_CLI::log()
 
 ### 1.4.0
 
