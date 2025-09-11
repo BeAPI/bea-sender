@@ -118,7 +118,8 @@ class Bea_Sender_Sender {
 		}
 		
 		// If we are already locked, stop now
-		if( fopen( $lock_file_path, "x" ) ) {
+		if( $lock_file_handle = fopen( $lock_file_path, "x" ) ) {
+			fclose($lock_file_handle);
 			self::$locked = true;
 			return true;
 		}
