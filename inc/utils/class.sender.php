@@ -101,13 +101,25 @@ class Bea_Sender_Sender {
 
 		clearstatcache();
 
-		if( is_file( WP_CONTENT_DIR.self::$lock_file ) ) {
-			self::$locked = true;
-			return false;
+		$lock_file_path = WP_CONTENT_DIR.self::$lock_file;
+		
+		if( is_file( $lock_file_path ) ) {
+			// Check if lock file is older than 24 hours (86400 seconds)
+			$file_age = time() - filemtime( $lock_file_path );
+			if( $file_age > 86400 ) {
+				// File is too old, remove it to avoid stale locks
+				unlink( $lock_file_path );
+				clearstatcache(); // Clear cache after file deletion
+			} else {
+				// File exists and is recent, process is already running
+				self::$locked = true;
+				return false;
+			}
 		}
 		
 		// If we are already locked, stop now
-		if( fopen( WP_CONTENT_DIR.self::$lock_file, "x" ) ) {
+		if( $lock_file_handle = fopen( $lock_file_path, "x" ) ) {
+			fclose($lock_file_handle);
 			self::$locked = true;
 			return true;
 		}
