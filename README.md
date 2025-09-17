@@ -7,6 +7,11 @@ Email sender registrer for WordPress
 
 ## Changelog
 
+### 1.4.3
+
+* Update: update the class.sender.php to remove lock file
+
+
 ### 1.4.2
 
 * Update: update the class.phpmailer-bmh.php and the class.settings-api.php libraries 
