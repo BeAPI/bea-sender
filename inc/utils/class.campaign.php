@@ -196,11 +196,13 @@ class Bea_Sender_Campaign {
 
 			$counter++;
 
-			// Mail trough the email class accepting the raw format
-			$mailed = Bea_Sender_Email::wpMail( $send->email, $this->subject, array(
-				'html' => self::contentReplace( $send, 'html' ),
-				'raw' => self::contentReplace( $send, 'text' ),
-			), array( 'campaign-id: '.$this->id."\n" ), $this->attachments );
+			$mailed = \wp_mail(
+				$send->email,
+				$this->subject,
+				self::contentReplace( $send, 'html' ),
+				array( 'campaign-id: '.$this->id."\n" ),
+				$this->attachments
+			);
 
 			if( !$mailed ) {
 				$failed[] = $send->email;
