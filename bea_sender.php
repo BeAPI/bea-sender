@@ -41,7 +41,6 @@ function _bea_sender_load_files($dir, $files, $prefix = '') {
 
 // Utils
 _bea_sender_load_files( BEA_SENDER_DIR . 'inc/utils/', array(
-	'email',
 	'campaign',
 	'content',
 	'attachment',
