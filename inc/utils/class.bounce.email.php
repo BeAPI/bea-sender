@@ -1,5 +1,7 @@
 <?php
 
+use codeworxtech\PHPMailerBMH\PHPMailerBMH;
+
 class Bea_Sender_BounceEmail {
 
 	private $bmh;
@@ -14,7 +16,7 @@ class Bea_Sender_BounceEmail {
 	private $log;
 
 	public function __construct() {
-		$this->bmh = new BounceMailHandler();
+		$this->bmh = new PHPMailerBMH();
 		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-bounce-cron' );
 	}
 
@@ -64,15 +66,15 @@ class Bea_Sender_BounceEmail {
 		// BHM setup
 		$this->bmh->mailhost = $host['mailhost'];
 		// your mail server
-		$this->bmh->mailbox_username = $host['mailbox_username'];
+		$this->bmh->mailboxUserName = $host['mailbox_username'];
 		// your mailbox username
-		$this->bmh->mailbox_password = $host['mailbox_password'];
+		$this->bmh->mailboxPassword = $host['mailbox_password'];
 		// your mailbox password
 		$this->bmh->port = $host['port'];
 		// the port to access your mailbox, default is 143
 		$this->bmh->service = $host['service'];
 		// the service to use (imap or pop3), default is 'imap'
-		$this->bmh->service_option = $host['service_option'];
+		$this->bmh->serviceOption = $host['service_option'];
 		// the service options (none, tls, notls, ssl, etc.), default is 'notls'
 		$this->bmh->boxname = $host['boxname'];
 		// the mailbox to access, default is 'INBOX'
@@ -90,20 +92,14 @@ class Bea_Sender_BounceEmail {
 		// Log
 		$this->log->log_this( 'Open the mailbox' );
 
-		$this->bmh->openMailbox();
-		$this->bmh->action_function = array(
+		$this->bmh->MailboxOpen();
+		$this->bmh->actionFunction = array(
 			$this,
 			'callback_action'
 		);
 
 		$this->log->log_this( 'Process mailbox' );
 		$this->bmh->processMailbox();
-
-
-		$this->log->log_this( 'Delete mailbox' );
-		// Delete flag and do global deletes if true
-		$this->bmh->globalDelete();
-
 
 		$this->log->log_this( 'Process end' );
 		// Unlock the file
