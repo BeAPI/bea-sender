@@ -7,19 +7,17 @@ Email sender registrer for WordPress
 
 ## Changelog
 
+### 1.4.4
+* Changed: use native `wp_mail` function to send emails
+
 ### 1.4.3
-
-* Update: update the class.sender.php to remove lock file
-
+* Update: update the `class.sender.php` to remove lock file
 
 ### 1.4.2
-
-* Update: update the class.phpmailer-bmh.php and the class.settings-api.php libraries 
+* Update: update the `class.phpmailer-bmh.php` and the `class.settings-api.php` libraries 
 
 ### 1.4.1
-
-* Fix: replace WP_CLI::info() by WP_CLI::log()
+* Fix: replace `WP_CLI::info()` by `WP_CLI::log()`
 
 ### 1.4.0
-
 * Added: Create a wp-cli command to replace the tools/cron.php

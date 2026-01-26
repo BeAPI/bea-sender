@@ -1,6 +1,6 @@
 {
   "name": "bea_sender",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Bea Sender",
   "author": "BeAPI",
   "devDependencies": {
