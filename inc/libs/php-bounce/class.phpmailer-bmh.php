@@ -52,7 +52,7 @@ namespace codeworxtech\PHPMailerBMH;
 
 if (version_compare(PHP_VERSION, '8.0.0', '<=') ) { exit("Sorry, this version of Bounce Mail Handler will only run on PHP version 8.0.0 or greater!\n"); }
 
-require_once(BEA_SENDER_DIR . '/inc/libs/php-bounce/' . 'phpmailer-bmh_rules.php');
+require_once(BEA_SENDER_DIR . '/inc/libs/php-bounce/phpmailer-bmh_rules.php');
 class PHPMailerBMH {
 
 	/* CONSTANTS */
