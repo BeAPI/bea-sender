@@ -5,7 +5,7 @@ use codeworxtech\PHPMailerBMH\PHPMailerBMH;
 class Bea_Sender_BounceEmail {
 
 	private $bmh;
-	private static $locked = false;
+	private static $locked    = false;
 	private static $lock_file = '/lock-bounce.lock';
 
 	/**
@@ -17,13 +17,13 @@ class Bea_Sender_BounceEmail {
 
 	public function __construct() {
 		$this->bmh = new PHPMailerBMH();
-		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-bounce-cron' );
+		$this->log = new Bea_Log( WP_CONTENT_DIR . '/bea-sender-bounce-cron', '.log', '', bea_sender_is_file_logging_enabled() );
 	}
 
 	public function bounce_init() {
 
 		// If we are already locked, stop the process
-		if ( !self::lock() ) {
+		if ( ! self::lock() ) {
 			return false;
 		}
 
@@ -45,7 +45,7 @@ class Bea_Sender_BounceEmail {
 			'movehard'         => false,
 			'hardmailbox'      => 'INBOX.hard',
 			'movesoft'         => false,
-			'softmailbox'      => 'INBOX.soft'
+			'softmailbox'      => 'INBOX.soft',
 		);
 
 		// Parse the args
@@ -61,7 +61,6 @@ class Bea_Sender_BounceEmail {
 
 			return false;
 		}
-
 
 		// BHM setup
 		$this->bmh->mailhost = $host['mailhost'];
@@ -86,7 +85,7 @@ class Bea_Sender_BounceEmail {
 		// default is false
 		$this->bmh->softMailbox = $host['softmailbox'];
 		// default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
-		//$this->bmh->deleteMsgDate      = '2009-01-05'; // format must be as
+		// $this->bmh->deleteMsgDate      = '2009-01-05'; // format must be as
 		// 'yyyy-mm-dd'
 
 		// Log
@@ -95,7 +94,7 @@ class Bea_Sender_BounceEmail {
 		$this->bmh->MailboxOpen();
 		$this->bmh->actionFunction = array(
 			$this,
-			'callback_action'
+			'callback_action',
 		);
 
 		$this->log->log_this( 'Process mailbox' );
@@ -106,11 +105,13 @@ class Bea_Sender_BounceEmail {
 		self::unlock();
 	}
 
-	/* This is a sample callback function for PHPMailer-BMH (Bounce Mail Handler).
+	/*
+	This is a sample callback function for PHPMailer-BMH (Bounce Mail Handler).
 	 * This callback function will echo the results of the BMH processing.
 	 */
 
-	/* Callback (action) function
+	/*
+	Callback (action) function
 	 * @param int     $msgnum        the message number returned by Bounce Mail
 	 * Handler
 	 * @param string  $bounce_type   the bounce type:
@@ -143,17 +144,21 @@ class Bea_Sender_BounceEmail {
 		if ( $receiver_result ) {
 			$this->log->log_this( sprintf( '%s found on database', $email ) );
 			$wpdb->update(
-				$wpdb->bea_s_receivers, array(
+				$wpdb->bea_s_receivers,
+				array(
 					'current_status' => 'invalid',
 					'bounce_cat'     => $rule_cat,
 					'bounce_type'    => $bounce_type,
-					'bounce_no'      => $rule_no
-				), array( 'email' => $email ), array(
+					'bounce_no'      => $rule_no,
+				),
+				array( 'email' => $email ),
+				array(
 					'%s',
 					'%s',
 					'%s',
-					'%s'
-				), array( '%s' )
+					'%s',
+				),
+				array( '%s' )
 			);
 		}
 
@@ -164,12 +169,16 @@ class Bea_Sender_BounceEmail {
 		if ( $re_ca__result ) {
 			$this->log->log_this( sprintf( '%s found on the _re_ca table', $email ) );
 			$wpdb->update(
-				$wpdb->bea_s_re_ca, array( 'current_status' => 'bounced' ), array(
+				$wpdb->bea_s_re_ca,
+				array( 'current_status' => 'bounced' ),
+				array(
 					'id_campaign' => $xheader,
-					'id_receiver' => $receiver_id
-				), array( '%s' ), array(
+					'id_receiver' => $receiver_id,
+				),
+				array( '%s' ),
+				array(
 					'%d',
-					'%d'
+					'%d',
 				)
 			);
 		}
@@ -202,7 +211,7 @@ class Bea_Sender_BounceEmail {
 		}
 
 		// If we are already locked, stop now
-		if ( fopen( WP_CONTENT_DIR . self::$lock_file, "x" ) ) {
+		if ( fopen( WP_CONTENT_DIR . self::$lock_file, 'x' ) ) {
 			self::$locked = true;
 			return true;
 		}
@@ -224,5 +233,4 @@ class Bea_Sender_BounceEmail {
 		// Unlock the file
 		self::$locked = false;
 	}
-
 }

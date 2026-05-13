@@ -7,6 +7,10 @@ Email sender registrer for WordPress
 
 ## Changelog
 
+### 1.4.5
+* Added: optional disable for cron file logs via `BEA_SENDER_FILE_LOGGING` or the `bea_sender_file_logging_enabled` filter (`bea_sender_is_file_logging_enabled()` in the main plugin file).
+* Changed: `Bea_Log` accepts a `$write_enabled` flag; when rotation runs, rotated files may be compressed to `.zip` when `ZipArchive` is available.
+
 ### 1.4.4
 * Changed: use native `wp_mail` function to send emails
 
