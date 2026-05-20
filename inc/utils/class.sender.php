@@ -1,8 +1,8 @@
 <?php
 class Bea_Sender_Sender {
 
-	private $campaigns = array( );
-	private static $locked = false;
+	private $campaigns        = array();
+	private static $locked    = false;
 	private static $lock_file = '/lock-send.lock';
 
 	/**
@@ -12,43 +12,43 @@ class Bea_Sender_Sender {
 	 */
 	private $log;
 
-	function __construct( ) {
-		$this->log = new Bea_Log( WP_CONTENT_DIR.'/bea-sender-email-cron' );
+	function __construct() {
+		$this->log = new Bea_Log( WP_CONTENT_DIR . '/bea-sender-email-cron', '.log', '', bea_sender_is_file_logging_enabled() );
 	}
 
 	/**
 	 * @return array|bool
 	 * @author Nicolas Juen
 	 */
-	public function init( ) {
-		if( !self::lock() ) {
+	public function init() {
+		if ( ! self::lock() ) {
 			return false;
 		}
 
 		$this->log->log_this( 'Start sending' );
 
-		if( !$this->getCampaigns( ) ) {
+		if ( ! $this->getCampaigns() ) {
 			$this->log->log_this( 'No campaign to send, exit.' );
 			// Unlock the file
 			self::unlock();
 		}
 
-		return $this->sendCampaigns( );
+		return $this->sendCampaigns();
 	}
 
 	/**
 	 * @return bool
 	 * @author Nicolas Juen
 	 */
-	private function getCampaigns( ) {
+	private function getCampaigns() {
 		/* @var $wpdb wpdb */
 		global $wpdb;
 
-		$cols = $wpdb->get_col( "SELECT id FROM $wpdb->bea_s_campaigns WHERE current_status IN( '".implode( "','", Bea_Sender_Campaign::getAuthStatuses( ) )."' ) AND scheduled_from <= '".current_time( 'mysql' )."' ORDER BY add_date ASC" );
+		$cols = $wpdb->get_col( "SELECT id FROM $wpdb->bea_s_campaigns WHERE current_status IN( '" . implode( "','", Bea_Sender_Campaign::getAuthStatuses() ) . "' ) AND scheduled_from <= '" . current_time( 'mysql' ) . "' ORDER BY add_date ASC" );
 
 		$this->log->log_this( sprintf( '%d campaigns to send', count( $cols ) ) );
-		if( !isset( $cols ) || empty( $cols ) ) {
-			$this->campaigns = array( );
+		if ( ! isset( $cols ) || empty( $cols ) ) {
+			$this->campaigns = array();
 			return false;
 		}
 		$this->campaigns = array_map( 'absint', $cols );
@@ -59,19 +59,19 @@ class Bea_Sender_Sender {
 	 * @return array
 	 * @author Nicolas Juen
 	 */
-	private function sendCampaigns( ) {
-		$results = array( );
+	private function sendCampaigns() {
+		$results = array();
 
 		do_action( 'bea_sender_before_send' );
-		foreach( $this->campaigns as $campaign_id ) {
+		foreach ( $this->campaigns as $campaign_id ) {
 			$campaign = new Bea_Sender_Campaign( $campaign_id );
-			if( $campaign->isData( ) !== true ) {
+			if ( $campaign->isData() !== true ) {
 				continue;
 			}
 			$this->log->log_this( sprintf( 'Send %s campaign', $campaign_id ) );
 			do_action( 'bea_sender_before_send_campaign', $campaign_id, $campaign );
 			// Make the sending
-			$results[] = $campaign->makeSend( );
+			$results[] = $campaign->makeSend();
 			do_action( 'bea_sender_after_send_campaign', $campaign_id, $campaign );
 
 		}
@@ -80,8 +80,8 @@ class Bea_Sender_Sender {
 		// Unlock the file
 		self::unlock();
 
-		$this->log->log_this( 'End campaigns '.var_export( $results, true ) );
-		
+		$this->log->log_this( 'End campaigns ' . var_export( $results, true ) );
+
 		return $results;
 	}
 
@@ -101,12 +101,12 @@ class Bea_Sender_Sender {
 
 		clearstatcache();
 
-		$lock_file_path = WP_CONTENT_DIR.self::$lock_file;
-		
-		if( is_file( $lock_file_path ) ) {
+		$lock_file_path = WP_CONTENT_DIR . self::$lock_file;
+
+		if ( is_file( $lock_file_path ) ) {
 			// Check if lock file is older than 24 hours (86400 seconds)
 			$file_age = time() - filemtime( $lock_file_path );
-			if( $file_age > 86400 ) {
+			if ( $file_age > 86400 ) {
 				// File is too old, remove it to avoid stale locks
 				unlink( $lock_file_path );
 				clearstatcache(); // Clear cache after file deletion
@@ -116,14 +116,14 @@ class Bea_Sender_Sender {
 				return false;
 			}
 		}
-		
+
 		// If we are already locked, stop now
-		if( $lock_file_handle = fopen( $lock_file_path, "x" ) ) {
-			fclose($lock_file_handle);
+		if ( $lock_file_handle = fopen( $lock_file_path, 'x' ) ) {
+			fclose( $lock_file_handle );
 			self::$locked = true;
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -132,11 +132,11 @@ class Bea_Sender_Sender {
 	 */
 	private static function unlock() {
 		// Remove the file if needed
-		if( is_file( WP_CONTENT_DIR.self::$lock_file ) ) {
-			unlink( WP_CONTENT_DIR.self::$lock_file );
+		if ( is_file( WP_CONTENT_DIR . self::$lock_file ) ) {
+			unlink( WP_CONTENT_DIR . self::$lock_file );
 		}
-		
+
 		// Unlock the file
 		self::$locked = false;
-	} 
+	}
 }
